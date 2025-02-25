@@ -168,7 +168,7 @@
 	var/current_target = get_turf(target)
 	switch(burn_type)
 		if(FLAMER_STREAM_STRAIGHT)
-			var/path_to_target = getline(start_location, current_target)
+			var/path_to_target = get_line(start_location, current_target) //todo: use get_traversal_line and change recursive_flame_straight to use get_dist_euclidean for range
 			path_to_target -= start_location
 			recursive_flame_straight(1, old_turfs, path_to_target, range, current_target, flame_max_wall_pen)
 		if(FLAMER_STREAM_CONE)
@@ -458,7 +458,7 @@
 		/obj/item/attachable/magnetic_harness,
 	)
 
-/turf/proc/ignite(fire_lvl, burn_lvl, f_color, fire_stacks = 0, fire_damage = 0)
+/turf/proc/ignite(fire_lvl, burn_lvl, f_color, fire_stacks = 0, fire_damage = 0, fire_type = /obj/fire/flamer)
 	//extinguish any flame present
 	var/obj/fire/flamer/old_fire = locate(/obj/fire/flamer) in src
 	if(old_fire)
@@ -467,7 +467,7 @@
 		old_fire.set_fire(new_fire_level, new_burn_level, f_color, fire_stacks, fire_damage)
 		return
 
-	new /obj/fire/flamer(src, fire_lvl, burn_lvl, f_color, fire_stacks, fire_damage)
+	new fire_type(src, fire_lvl, burn_lvl, f_color, fire_stacks, fire_damage)
 	for(var/obj/structure/flora/jungle/vines/vines in src)
 		QDEL_NULL(vines)
 
