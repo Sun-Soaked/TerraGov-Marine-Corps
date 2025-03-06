@@ -418,3 +418,32 @@
 		return
 	staggerstun(target_mob, proj, max_range, 0, knockdown_duration, stagger_stacks, slowdown_stacks, knockback)
 	target_carbon.apply_status_effect(STATUS_EFFECT_SHATTER, shatter_duration)
+
+/datum/ammo/xeno/clot
+	name = "clotted blood"
+	ping = null
+	damage_type = STAMINA
+	armor_type = BIO
+	ammo_behavior_flags = AMMO_XENO
+	spit_cost = 20
+	bullet_color = COLOR_RED
+	sound_hit = "alien_resin_build2"
+	sound_bounce = "alien_resin_build3"
+	damage = 35
+	max_range = 8
+	stagger_stacks = 3
+	slowdown_stacks = 5
+
+/datum/ammo/xeno/clot/on_hit_mob(mob/target_mob, obj/projectile/proj)
+	if(iscarbon(target_mob))
+		var/mob/living/carbon/target_carbon = target_mob
+		if(target_carbon.issamexenohive(proj.firer))
+			var/heal_amount = (THIRSTER_CLOT_BASE_HEAL * (target_carbon.maxHealth * 0.01))
+			target_carbon.apply_status_effect(/datum/status_effect/clotted, 4 SECONDS)
+			target_carbon.adjustFireLoss(-max(0, heal_amount - target_carbon.getBruteLoss()), TRUE)
+			target_carbon.adjustBruteLoss(-heal_amount)
+			target_carbon.adjust_sunder(-heal_amount/5)
+			new /obj/effect/temp_visual/healing(get_turf(target_carbon))
+			return
+		target_carbon.adjust_stagger(stagger_stacks)
+		target_carbon.add_slowdown(slowdown_stacks)

@@ -301,6 +301,13 @@
 	upgrade = XENO_UPGRADE_PRIMO
 	upgrade_stored = TIER_THREE_THRESHOLD
 
+/mob/living/carbon/xenomorph/gorger/thirster
+	upgrade = XENO_UPGRADE_NORMAL
+
+/mob/living/carbon/xenomorph/gorger/thirster/primordial
+	upgrade = XENO_UPGRADE_PRIMO
+	upgrade_stored = TIER_THREE_THRESHOLD
+
 //---GORGER END---//
 //============//
 //---BOILER START---//

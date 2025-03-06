@@ -870,3 +870,152 @@
 	xeno_owner.xeno_melee_damage_modifier -= modifier
 	xeno_owner.remove_filter("frenzy_screech_outline")
 	return ..()
+
+// ***************************************
+// *********** Clotted
+// ***************************************
+
+/datum/status_effect/clotted
+	id = "clotted"
+	status_type = STATUS_EFFECT_REFRESH
+	alert_type = /atom/movable/screen/alert/status_effect/clotted
+	duration = 2 SECONDS
+	var/obj/effect/abstract/particle_holder/particle_holder
+
+/datum/status_effect/clotted/on_apply()
+	if(!isxeno(owner))
+		return FALSE
+	var/mob/living/carbon/xenomorph/xenoowner = owner
+	xenoowner.soft_armor = xenoowner.soft_armor.modifyAllRatings(THIRSTER_CLOT_ARMOR_MOD)
+	xenoowner.color = "#9e1d1d"
+	particle_holder = new(xenoowner, /particles/drain_surge)
+	particle_holder.pixel_x = 11
+	particle_holder.pixel_y = 12
+	return TRUE
+
+/datum/status_effect/clotted/on_remove()
+	var/mob/living/carbon/xenomorph/xenoowner = owner
+	xenoowner.soft_armor = xenoowner.soft_armor.modifyAllRatings(-THIRSTER_CLOT_ARMOR_MOD)
+	xenoowner.color = "#FFFFFF"
+	QDEL_NULL(particle_holder)
+	return ..()
+
+/atom/movable/screen/alert/status_effect/clotted
+	name = "Clotted"
+	desc = "Putrid blood is reinforcing the gaps in your armor!"
+	icon_state = "drunk" //Close enough
+
+
+// ***************************************
+// *********** Blood Siphon
+// ***************************************
+
+/datum/status_effect/stacking/blood_siphon
+	id = "xeno_blood_siphon"
+	stacks = 5
+	stack_decay = -1 //Not meant to decay naturally.
+	max_stacks = 5
+	consumed_on_threshold = FALSE
+	consumed_on_fadeout = FALSE
+	alert_type = null
+	/// The owner of the link.
+	var/mob/living/carbon/xenomorph/link_owner
+	/// Whom the owner is linked to.
+	var/mob/living/carbon/link_target
+	/// References the proboscis action and its vars.
+	var/datum/action/ability/activable/xeno/proboscis/xeno_action
+	/// If the target xeno was within range.
+	var/was_within_range = TRUE
+	/// The beam used to represent the link between linked xenos.
+	var/datum/beam/current_beam
+	/// Yells at a marine that their blood is being stolen on this interval
+	var/drain_message_cooldown = 5 SECONDS
+	/// Cooldown for the drain warning
+	COOLDOWN_DECLARE(drain_message)
+
+/datum/status_effect/stacking/blood_siphon/on_creation(mob/living/new_owner, stacks_to_apply, mob/living/carbon/link_target)
+	link_owner = new_owner
+	src.link_target = link_target
+	xeno_action = link_owner.actions_by_path[/datum/action/ability/activable/xeno/proboscis]
+	ADD_TRAIT(link_owner, TRAIT_BLOOD_SIPHON, TRAIT_STATUS_EFFECT(id))
+	ADD_TRAIT(link_target, TRAIT_BLOOD_SIPHON, TRAIT_STATUS_EFFECT(id))
+	//assorted conditions that should retract proboscis
+	RegisterSignals(link_owner, list(COMSIG_MOB_DEATH, COMSIG_XENOMORPH_EVOLVED, COMSIG_XENOMORPH_DEEVOLVED), PROC_REF(retract))
+	RegisterSignals(link_target, list(COMSIG_MOB_DEATH, COMSIG_XENOMORPH_EVOLVED, COMSIG_XENOMORPH_DEEVOLVED), PROC_REF(retract))
+	//debuffs that should retract proboscis
+	RegisterSignals(link_owner, list(COMSIG_LIVING_STATUS_STUN,
+		COMSIG_LIVING_STATUS_KNOCKDOWN,
+		COMSIG_LIVING_STATUS_PARALYZE,
+		COMSIG_LIVING_STATUS_UNCONSCIOUS,
+		COMSIG_LIVING_STATUS_SLEEP,
+		COMSIG_LIVING_STATUS_STAGGER), PROC_REF(debuff_check))
+	toggle_beam(TRUE)
+	to_chat(link_owner, span_xenonotice("We plant our proboscis in the [link_target]. Stay within [THIRSTER_PROBOSCIS_RANGE] tiles to maintain it."))
+	return ..()
+
+/datum/status_effect/stacking/blood_siphon/tick(delta_time)
+	if(stacks <= 1 || get_dist(link_owner, link_target) >= THIRSTER_PROBOSCIS_RANGE)
+		retract()
+	if(link_target.on_fire)
+		stacks =- 1
+		to_chat(link_owner, span_danger("[link_target] is burning! Our proboscis can't take the heat for much longer!"))
+
+	if(isxeno(link_target))
+		var/mob/living/carbon/xenomorph/xenotarget = link_target
+		if(link_owner.plasma_stored > THIRSTER_PROBOSCIS_COST)
+			var/heal_amount = (link_target.maxHealth * (THIRSTER_PROBOSCIS_REGEN * xenotarget.recovery_aura))
+			xenotarget.adjustFireLoss(-max(0, heal_amount - link_target.getBruteLoss()), TRUE)
+			xenotarget.adjustBruteLoss(-heal_amount)
+			xenotarget.adjust_sunder(-THIRSTER_PROBOSCIS_SUNDER)
+			link_owner.use_plasma(THIRSTER_PROBOSCIS_COST)
+		else
+			link_owner.balloon_alert(link_owner, "Out of blood, retracting!")
+			retract()
+	else
+		if(link_owner.plasma_stored < link_owner.xeno_caste.plasma_max)
+			link_owner.gain_plasma(THIRSTER_PROBOSCIS_DRAIN)
+			link_target.apply_damage(THIRSTER_PROBOSCIS_STAM, STAMINA)
+			if(link_target.slowdown <= 3)
+				link_target.adjust_slowdown(0.6)
+			if(COOLDOWN_CHECK(src, drain_message))
+				to_chat(link_target, span_danger( "You feel woozy... your blood is draining away..."))
+				COOLDOWN_START(src, drain_message, drain_message_cooldown)
+		else
+			to_chat(link_owner, span_xenonotice("We are sated. We withdraw our proboscis from [link_target]."))
+			retract()
+
+
+/datum/status_effect/stacking/blood_siphon/on_remove()
+	to_chat(link_owner, span_xenonotice("Our proboscis detaches from [link_target]."))
+	to_chat(link_target, span_xenonotice("The hollow proboscis detaches from our flesh and returns to [link_owner]."))
+	UnregisterSignal(link_owner, list(COMSIG_MOB_DEATH, COMSIG_XENOMORPH_EVOLVED, COMSIG_XENOMORPH_DEEVOLVED,
+		COMSIG_LIVING_STATUS_STUN,
+		COMSIG_LIVING_STATUS_KNOCKDOWN,
+		COMSIG_LIVING_STATUS_PARALYZE,
+		COMSIG_LIVING_STATUS_UNCONSCIOUS,
+		COMSIG_LIVING_STATUS_SLEEP,
+		COMSIG_LIVING_STATUS_STAGGER))
+	UnregisterSignal(link_target, list(COMSIG_MOB_DEATH, COMSIG_XENOMORPH_EVOLVED, COMSIG_XENOMORPH_DEEVOLVED))
+	REMOVE_TRAIT(link_owner, TRAIT_BLOOD_SIPHON, TRAIT_STATUS_EFFECT(id))
+	REMOVE_TRAIT(link_target, TRAIT_BLOOD_SIPHON, TRAIT_STATUS_EFFECT(id))
+	toggle_beam(FALSE)
+	return ..()
+
+///checks to make sure the debuff which called the signal added any amount, then hands it off to retract()
+/datum/status_effect/stacking/blood_siphon/proc/debuff_check(datum/source, amount)
+	SIGNAL_HANDLER
+	if(!(amount > 0))
+		return
+	retract()
+
+///passes the retract command on to the linked xeno ability
+/datum/status_effect/stacking/blood_siphon/proc/retract()
+	SIGNAL_HANDLER
+	xeno_action.retract()
+
+/// Toggles the effect beam on or off.
+/datum/status_effect/stacking/blood_siphon/proc/toggle_beam(toggle)
+	if(!toggle)
+		QDEL_NULL(current_beam)
+		return
+	current_beam = link_target.beam(link_owner, icon_state= "medbeam", beam_type = /obj/effect/ebeam/essence_link)

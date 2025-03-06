@@ -922,3 +922,13 @@
 // ***************************************
 /datum/status_effect/incapacitating/dancer_tagged
 	id = "dancer_tagged"
+
+// ***************************************
+// *********** Open Vein
+/datum/status_effect/incapacitating/openvein
+	id = "open_vein"
+
+/atom/movable/screen/alert/status_effect/openvein
+	name = "Opened Vein"
+	desc = "Your blood feels especially tasty."
+	icon_state = "cold3"

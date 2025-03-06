@@ -89,7 +89,7 @@
 // NEUTRAL //
 /////////////
 
-// none for now
+#define STATUS_EFFECT_XENO_BLOOD_SIPHON /datum/status_effect/stacking/blood_siphon
 
 // Stasis helpers
 

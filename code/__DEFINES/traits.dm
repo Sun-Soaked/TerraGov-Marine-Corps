@@ -164,6 +164,7 @@
 #define TRAIT_IS_RESURRECTING "resurrecting"
 #define TRAIT_ESSENCE_LINKED "essence_linked"
 #define TRAIT_PSY_LINKED "psy_linked"
+#define TRAIT_BLOOD_SIPHON "blood_siphon"
 #define TRAIT_TIME_SHIFTED "time_shifted"
 #define TRAIT_LEASHED "leashed"
 #define TRAIT_CAN_VENTCRAWL "can_ventcrawl"

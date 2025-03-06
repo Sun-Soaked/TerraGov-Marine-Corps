@@ -498,3 +498,238 @@
 	return can_use_ability(target, TRUE)
 
 #undef FEAST_MISCLICK_CD
+
+// reskins spit ability for thirster usage
+/datum/action/ability/activable/xeno/xeno_spit/clot
+	name = "Spit Clot"
+	action_icon_state = "shift_spit_neurotoxin"
+	action_icon = 'icons/Xeno/actions/spits.dmi'
+	desc = "Spit a glob of clotted blood at your target, healing friendly xenos and reinforcing their armor for a short time. Other targets are briefly slowed and staggered."
+
+
+// ***************************************
+// *********** Proboscis
+// ***************************************
+/datum/action/ability/activable/xeno/proboscis
+	name = "Launch Proboscis"
+	action_icon_state = "feast"
+	action_icon = 'icons/Xeno/actions/gorger.dmi'
+	desc = "Launch your proboscis-tongue at a living target. Slowly drains the blood of human targets, sapping their stamina and speed. Gradually feeds blood to xenos, replenishing their plasma and health. Alternate fire retracts your proboscis."
+	cooldown_duration = 5 SECONDS
+	ability_cost = 0
+	// keybinding_signals = list(
+	// 	KEYBINDING_NORMAL = COMSIG_XENOABILITY_LAUNCH_PROBOSCIS,
+	//  KEYBINDING_ALTERNATE = COMSIG_XENOABILITY_RETRACT_PROBOSCIS,
+	// )
+	///reference to beam made between thirster and projectile
+	var/datum/beam/proboscis_launching
+	/// Used to determine whether there is an existing proboscis statys effect or not. Also allows access to its vars.
+	var/datum/status_effect/stacking/blood_siphon/blood_siphon
+	/// The target of an existing siphon, if applicable.
+	var/mob/living/carbon/linked_target
+
+/datum/action/ability/activable/xeno/proboscis/can_use_ability(atom/A, silent = FALSE, override_flags)
+	. = ..()
+	if(!.)
+		return
+	if(!iscarbon(A))
+		if(!silent)
+			A.balloon_alert(owner, "Can't drain!")
+		return FALSE
+	var/mob/living/carbon/carbontarget = A
+	if(carbontarget.stat == DEAD)
+		if(!silent)
+			carbontarget.balloon_alert(owner, "They're dead!")
+		return FALSE
+	if(HAS_TRAIT(xeno_owner, TRAIT_BLOOD_SIPHON))
+		if(!silent)
+			carbontarget.balloon_alert(xeno_owner, "We are already linked")
+		return FALSE
+	if(HAS_TRAIT(carbontarget, TRAIT_BLOOD_SIPHON))
+		if(!silent)
+			carbontarget.balloon_alert(xeno_owner, "They are already linked")
+		return FALSE
+	//var/atom/movable/target = A
+	var/turf/current = get_turf(owner)
+	var/turf/target_turf = get_turf(carbontarget)
+	if(current == target_turf)
+		return TRUE
+	if(get_dist(current, target_turf) > THIRSTER_PROBOSCIS_RANGE)
+		if(!silent)
+			carbontarget.balloon_alert(owner, "Too far!")
+		return FALSE
+	current = get_step_towards(current, target_turf)
+	while((current != target_turf))
+		if(current.density)
+			if(!silent)
+				carbontarget.balloon_alert(owner, "Can't reach!")
+			return FALSE
+		current = get_step_towards(current, target_turf)
+
+/datum/action/ability/activable/xeno/proboscis/use_ability(atom/movable/target)
+	var/atom/movable/proboscis_jaw/jaw = new (get_turf(owner))
+	proboscis_launching = owner.beam(jaw,"curse0",'icons/effects/beam.dmi')
+	RegisterSignals(jaw, list(COMSIG_MOVABLE_POST_THROW, COMSIG_MOVABLE_IMPACT), PROC_REF(setup_proboscis))
+	jaw.throw_at(target, THIRSTER_PROBOSCIS_RANGE * 1.5, 3, owner, FALSE)
+	succeed_activate()
+	add_cooldown()
+
+///Handler that deploys our proboscis link on the hit carbon
+/datum/action/ability/activable/xeno/proboscis/proc/setup_proboscis(datum/source, atom/movable/target)
+	SIGNAL_HANDLER
+	QDEL_NULL(proboscis_launching)
+	qdel(source)
+
+	if(!can_use_ability(target, TRUE, ABILITY_IGNORE_COOLDOWN|ABILITY_IGNORE_PLASMA))
+		owner.balloon_alert(target, "Couldn't latch on!")
+		retract(target)
+		clear_cooldown()
+		return
+
+	//tentacle = owner.beam(target, "curse0",'icons/effects/beam.dmi')
+	playsound(target, 'sound/effects/blobattack.ogg', 40, 1)
+	to_chat(owner, span_warning("We latch onto [target] with our proboscis!"))
+	xeno_owner.apply_status_effect(STATUS_EFFECT_XENO_BLOOD_SIPHON, 1, target)
+	blood_siphon = xeno_owner.has_status_effect(STATUS_EFFECT_XENO_BLOOD_SIPHON)
+	linked_target = target
+
+	if(isliving(target))
+		var/mob/living/livingtarget = target
+		if(!isxeno(livingtarget))
+			livingtarget.apply_damage(damage = 10, damagetype = BRUTE, def_zone = BODY_ZONE_HEAD, blocked = 0, sharp = TRUE, edge = FALSE, updating_health = TRUE)
+			livingtarget.Shake(duration = 0.5 SECONDS)
+			to_chat(livingtarget, span_userdanger("You are speared by the end of [xeno_owner]'s hollow proboscis!"))
+		else
+			to_chat(livingtarget, span_notice("[xeno_owner]'s hollow proboscis pierces our skin. Our wounds begin to slowly close."))
+
+///terminates proboscis link and visibly returns it to thirster
+/datum/action/ability/activable/xeno/proboscis/proc/retract(custom_target)
+	//something's gone horribly wrong
+	if(!linked_target && !custom_target)
+		return
+	var/resolved_target = !custom_target ? linked_target : custom_target
+	var/atom/movable/proboscis_jaw/retract/jaw = new (get_turf(resolved_target))
+	RegisterSignal(jaw, COMSIG_MOVABLE_POST_THROW, PROC_REF(end_retract))
+	proboscis_launching = owner.beam(jaw,"curse0",'icons/effects/beam.dmi')
+
+	jaw.throw_at(owner, TENTACLE_ABILITY_RANGE, 3, owner, FALSE)
+	xeno_owner.remove_status_effect(STATUS_EFFECT_XENO_BLOOD_SIPHON)
+	blood_siphon = null
+	linked_target = null
+	add_cooldown()
+
+///signal handler to delete proboscis and beam only after we are done retracting it
+/datum/action/ability/activable/xeno/proboscis/proc/end_retract(datum/source)
+	SIGNAL_HANDLER
+	UnregisterSignal(source, COMSIG_MOVABLE_POST_THROW)
+	QDEL_NULL(proboscis_launching)
+	qdel(source)
+
+/datum/action/ability/activable/xeno/proboscis/alternate_action_activate()
+	if(!HAS_TRAIT(xeno_owner, TRAIT_BLOOD_SIPHON))
+		xeno_owner.balloon_alert(xeno_owner, "Nothing to retract!")
+		return
+	retract()
+	return COMSIG_KB_ACTIVATED
+
+
+//remember this for come hither
+// var/datum/action/ability/xeno_action/enhancement/enhancement_action = xeno_owner.actions_by_path[/datum/action/ability/xeno_action/enhancement]
+// enhancement_action?.end_ability()
+
+
+/atom/movable/proboscis_jaw
+	name = "hollow proboscis"
+	//invisibility = INVISIBILITY_ABSTRACT
+
+//we don't want thirster to get hit by it's own jaw on the retract
+/atom/movable/proboscis_jaw/retract
+	invisibility = INVISIBILITY_ABSTRACT
+
+
+// ***************************************
+// *********** Taste
+// ***************************************
+/obj/effect/temp_visual/warning
+	icon = 'icons/xeno/Effects.dmi'
+	icon_state = "generic_warning"
+	layer = BELOW_MOB_LAYER
+	color = COLOR_RED
+
+/obj/effect/temp_visual/warning/Initialize(mapload, warning_duration)
+	. = ..()
+	if(warning_duration)
+		duration = warning_duration
+	animate(src, time = duration - 0.5 SECONDS)
+
+/datum/action/ability/activable/xeno/taste
+	name = "Taste"
+	action_icon_state = "feast"
+	action_icon = 'icons/Xeno/actions/gorger.dmi'
+	desc = "Lash out, gouging into marines in a 3x5 area with the sharp end of your proboscis. Struck marines are staggered and inflicted with Lifedrain. Cannot be used while your proboscis is occupied."
+	cooldown_duration = 15 SECONDS
+	ability_cost = 0
+	// keybinding_signals = list(
+	// 	KEYBINDING_NORMAL = COMSIG_XENOABILITY_TASTE,
+	// )
+	keybind_flags = ABILITY_KEYBIND_USE_ABILITY
+
+/datum/action/ability/activable/xeno/proboscis/can_use_ability(atom/A, silent = FALSE, override_flags)
+	. = ..()
+	if(xeno_owner.has_status_effect(STATUS_EFFECT_XENO_BLOOD_SIPHON))
+		xeno_owner.balloon_alert(xeno_owner, "Our Proboscis is in use!")
+		return FALSE
+
+/datum/action/ability/activable/xeno/taste/on_cooldown_finish()
+	to_chat(owner, span_xenodanger("Our jaw muscles recover. We can lash out once again."))
+	playsound(owner, 'sound/effects/alien/new_larva.ogg', 50, 0, 1)
+	return ..()
+
+/datum/action/ability/activable/xeno/taste/use_ability(atom/A)
+	xeno_owner.emote("roar")
+	xeno_owner.visible_message(span_danger("\The [xeno_owner] whips their tongue through the air!"))
+
+	xeno_owner.face_atom(A)
+
+	var/turf/lower_left
+	var/turf/upper_right
+	//get bounds of our aoe
+	switch(owner.dir)
+		if(NORTH)
+			lower_left = locate(owner.x - 1, owner.y + 1, owner.z)
+			upper_right = locate(owner.x + 1, owner.y + 5, owner.z)
+		if(SOUTH)
+			lower_left = locate(owner.x - 1, owner.y - 5, owner.z)
+			upper_right = locate(owner.x + 1, owner.y - 1, owner.z)
+		if(WEST)
+			lower_left = locate(owner.x - 5, owner.y - 1, owner.z)
+			upper_right = locate(owner.x - 1, owner.y + 1, owner.z)
+		if(EAST)
+			lower_left = locate(owner.x + 1, owner.y - 1, owner.z)
+			upper_right = locate(owner.x + 5, owner.y + 1, owner.z)
+
+	var/list/turf/affected_tiles = block(lower_left, upper_right)
+	//var/list/things_to_lash = list()
+
+	xeno_owner.set_canmove(FALSE)
+	do_warning(xeno_owner, affected_tiles, THIRSTER_TASTE_WINDUP, /obj/effect/temp_visual/warning)
+	if(do_after(xeno_owner, THIRSTER_TASTE_WINDUP, NONE, xeno_owner, BUSY_ICON_DANGER) || (QDELETED(A)) || xeno_owner.z != A.z)
+		for(var/turf/affected_tile in affected_tiles)
+			for(var/atom/movable/affected AS in affected_tile.contents)
+				if(ishuman(affected))
+					var/mob/living/carbon/human/meal = affected
+					//no hooking through solid obstacles
+					if(check_path(xeno_owner, meal, PASS_THROW) != meal)
+						continue
+					meal.apply_damage(15, BRUTE, blocked = MELEE, sharp = TRUE)
+					meal.Shake(duration = 1)
+					meal.adjust_stagger(0.5 SECONDS)
+					xeno_owner.do_attack_animation(meal, ATTACK_EFFECT_REDSTAB)
+					to_chat(meal, span_userdanger("The razor edge of [xeno_owner]'s proboscis tears into your skin!"))
+					//do lifesteal or something when cheese's pr gets merged
+		xeno_owner.set_canmove(TRUE)
+	else
+		xeno_owner.set_canmove(TRUE)
+
+	succeed_activate()
+	add_cooldown()

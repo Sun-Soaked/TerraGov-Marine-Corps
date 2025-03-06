@@ -71,6 +71,8 @@ GLOBAL_LIST_INIT(all_xeno_types, list(
 	/mob/living/carbon/xenomorph/defender/primordial,
 	/mob/living/carbon/xenomorph/gorger,
 	/mob/living/carbon/xenomorph/gorger/primordial,
+	/mob/living/carbon/xenomorph/gorger/thirster,
+	/mob/living/carbon/xenomorph/gorger/thirster/primordial,
 	/mob/living/carbon/xenomorph/hunter,
 	/mob/living/carbon/xenomorph/hunter/primordial,
 	/mob/living/carbon/xenomorph/warrior,

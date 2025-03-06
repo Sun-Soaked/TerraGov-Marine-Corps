@@ -670,6 +670,20 @@ GLOBAL_LIST_INIT(layers_to_offset, list(
 #define GORGER_CARNAGE_MOVEMENT -0.5
 #define GORGER_FEAST_DURATION -1 // lasts indefinitely, self-cancelled when insufficient plasma left
 
+//thirster defines
+#define THIRSTER_CLOT_BASE_HEAL 20 //hp healed by clot on impact with ally, multiplied by max hp
+#define THIRSTER_CLOT_ARMOR_MOD 10 //Amount to buff an allies armor when they are clotted
+#define THIRSTER_TASTE_WINDUP 1.5 SECONDS //time in seconds it takes to channel Taste after the ability is activated
+
+#define THIRSTER_PROBOSCIS_RANGE 7 //Max range of thirster's proboscis link
+#define THIRSTER_PROBOSCIS_SUNDER 5 // Amount sunder repair per second
+#define THIRSTER_PROBOSCIS_REGEN 0.05 // Amount of regen per second given as a percentage.
+#define THIRSTER_PROBOSCIS_COST 10 // Amount of blood spent per second while proboscis is connected to a xeno
+
+#define THIRSTER_PROBOSCIS_STAM 5 // Amount of stamina dmg dealt per second while proboscis is connected to a marine
+#define THIRSTER_PROBOSCIS_DRAIN 10 // Amount of blood recieved per second while proboscis is connected to a marine
+#define THIRSTER_OPENWOUND_REWARD 50 // Amount of blood immediately gained when proboscis lands on a marine with lifedrain
+
 //carrier defines
 #define CARRIER_HUGGER_THROW_SPEED 2
 #define CARRIER_HUGGER_THROW_DISTANCE 5

@@ -313,9 +313,10 @@
 	playsound(xeno_owner, 'sound/effects/alien/behemoth/landslide_roar.ogg', 40, TRUE)
 	var/which_step = pick(0, 1)
 	new /obj/effect/temp_visual/behemoth/landslide/dust(owner_turf, direction, which_step)
-	do_warning(xeno_owner, get_affected_turfs(owner_turf, direction, LANDSLIDE_RANGE), LANDSLIDE_WIND_UP + 0.5 SECONDS)
 	var/charge_damage = (xeno_owner.xeno_caste.melee_damage * xeno_owner.xeno_melee_damage_modifier) * LANDSLIDE_DAMAGE_MULTIPLIER
 	var/datum/action/ability/xeno_action/primal_wrath/primal_wrath_action = xeno_owner.actions_by_path[/datum/action/ability/xeno_action/primal_wrath]
+	var/warning_type = primal_wrath_action?.ability_active? /obj/effect/temp_visual/behemoth/warning/enhanced : /obj/effect/temp_visual/behemoth/warning
+	do_warning(xeno_owner, get_affected_turfs(owner_turf, direction, LANDSLIDE_RANGE), LANDSLIDE_WIND_UP + 0.5 SECONDS, warning_type)
 	if(primal_wrath_action?.ability_active)
 		var/animation_time = LANDSLIDE_RANGE * LANDSLIDE_ENHANCED_STEP_DELAY
 		addtimer(CALLBACK(src, PROC_REF(enhanced_do_charge), direction, charge_damage, LANDSLIDE_ENHANCED_STEP_DELAY, LANDSLIDE_RANGE), LANDSLIDE_ENHANCED_WIND_UP)
@@ -653,7 +654,8 @@
 		wind_up_duration = EARTH_RISER_ENHANCED_WIND_UP
 		affected_turfs = RANGE_TURFS(EARTH_RISER_ENHANCED_RADIUS, target_turf)
 		addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(behemoth_area_attack), xeno_owner, affected_turfs), wind_up_duration + 0.5 SECONDS)
-	do_warning(xeno_owner, affected_turfs, wind_up_duration)
+	var/warning_type = primal_wrath_action?.ability_active? /obj/effect/temp_visual/behemoth/warning/enhanced : /obj/effect/temp_visual/behemoth/warning
+	do_warning(xeno_owner, affected_turfs, wind_up_duration, warning_type)
 	addtimer(CALLBACK(src, PROC_REF(do_ability), target_turf, primal_wrath_action?.ability_active), wind_up_duration)
 	add_cooldown(primal_wrath_action?.ability_active? EARTH_RISER_PRIMAL_WRATH_COOLDOWN : wind_up_duration + 0.1 SECONDS)
 	succeed_activate()
@@ -813,10 +815,12 @@
 		return
 	add_cooldown()
 	succeed_activate()
+	var/datum/action/ability/xeno_action/primal_wrath/primal_wrath_action = xeno_owner.actions_by_path[/datum/action/ability/xeno_action/primal_wrath]
+	var/warning_type = primal_wrath_action?.ability_active? /obj/effect/temp_visual/behemoth/warning/enhanced : /obj/effect/temp_visual/behemoth/warning
 	if(wind_up <= 0)
 		behemoth_area_attack(owner, turfs_to_attack, enhanced)
 	else
-		do_warning(owner, turfs_to_attack, wind_up)
+		do_warning(owner, turfs_to_attack, wind_up, warning_type)
 		addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(behemoth_area_attack), owner, turfs_to_attack, enhanced), wind_up)
 	if(!enhanced)
 		return
@@ -828,7 +832,7 @@
 			extra_turfs_to_warn -= extra_turf_to_warn
 	if(length(extra_turfs_to_warn) && length(turfs_to_attack))
 		extra_turfs_to_warn -= turfs_to_attack
-	do_warning(owner, extra_turfs_to_warn, wind_up + SEISMIC_FRACTURE_ENHANCED_DELAY)
+	do_warning(owner, extra_turfs_to_warn, wind_up + SEISMIC_FRACTURE_ENHANCED_DELAY, warning_type)
 	var/list/turf/extra_turfs = filled_turfs(target_turf, SEISMIC_FRACTURE_ATTACK_RADIUS + 1, bypass_window = TRUE, projectile = TRUE)
 	if(length(extra_turfs) && length(turfs_to_attack))
 		extra_turfs -= turfs_to_attack
@@ -1441,7 +1445,9 @@
 					affected_pillar.call_area_attack()
 					var/list/turf/spread_turfs = filled_turfs(affected_pillar.loc, EARTH_PILLAR_SPREAD_RADIUS, include_edge = FALSE, bypass_window = TRUE, projectile = TRUE)
 					var/wind_up_duration = initial(affected_pillar.warning_flashes) * 10
-					do_warning(xeno_owner, spread_turfs, wind_up_duration)
+					var/datum/action/ability/xeno_action/primal_wrath/primal_wrath_action = xeno_owner.actions_by_path[/datum/action/ability/xeno_action/primal_wrath]
+					var/warning_type = primal_wrath_action?.ability_active? /obj/effect/temp_visual/behemoth/warning/enhanced : /obj/effect/temp_visual/behemoth/warning
+					do_warning(xeno_owner, spread_turfs, wind_up_duration, warning_type)
 					addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(behemoth_area_attack), xeno_owner, spread_turfs, enhanced), wind_up_duration)
 					continue
 				if(isvehicle(affected_atom) || ishitbox(affected_atom))
@@ -1457,14 +1463,12 @@
 					continue
 
 /// Warns nearby players, in any way or form, of the incoming ability and the range it will affect.
-/proc/do_warning(owner, list/turf/target_turfs, duration)
-	if(!owner || !length(target_turfs) || !duration)
-		CRASH("do_warning([owner], [length(target_turfs)], [duration]) called with improper arguments")
+/proc/do_warning(owner, list/turf/target_turfs, duration, warning_type)
+	if(!owner || !length(target_turfs) || !duration || !warning_type)
+		CRASH("do_warning([owner], [length(target_turfs)], [duration], [warning_type]) called with improper arguments")
 	if(!isxeno(owner))
 		return
 	var/mob/living/carbon/xenomorph/xeno_owner = owner
-	var/datum/action/ability/xeno_action/primal_wrath/primal_wrath_action = xeno_owner.actions_by_path[/datum/action/ability/xeno_action/primal_wrath]
-	var/warning_type = primal_wrath_action?.ability_active? /obj/effect/temp_visual/behemoth/warning/enhanced : /obj/effect/temp_visual/behemoth/warning
 	for(var/turf/target_turf AS in target_turfs)
 		new warning_type(target_turf, duration)
 		playsound(target_turf, 'sound/effects/alien/behemoth/rumble.ogg', 15, TRUE)

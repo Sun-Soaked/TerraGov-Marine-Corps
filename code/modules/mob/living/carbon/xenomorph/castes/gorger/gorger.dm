@@ -16,3 +16,10 @@
 /mob/living/carbon/xenomorph/gorger/Initialize(mapload)
 	. = ..()
 	GLOB.huds[DATA_HUD_XENO_HEART].add_hud_to(src)
+
+/mob/living/carbon/xenomorph/gorger/thirster
+	caste_base_type = /datum/xeno_caste/gorger/thirster
+
+/mob/living/carbon/xenomorph/gorger/thirster/Initialize(mapload)
+	. = ..()
+	ammo = GLOB.ammo_list[/datum/ammo/xeno/clot]

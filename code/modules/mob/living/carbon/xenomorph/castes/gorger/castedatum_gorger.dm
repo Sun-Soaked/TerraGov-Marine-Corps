@@ -63,6 +63,9 @@
 /datum/xeno_caste/gorger/normal
 	upgrade = XENO_UPGRADE_NORMAL
 
+/datum/xeno_caste/gorger/thirster/normal
+	upgrade = XENO_UPGRADE_NORMAL
+
 /datum/xeno_caste/gorger/primordial
 	upgrade_name = "Primordial"
 	caste_desc = "Being within mere eyeshot of this hulking monstrosity fills you with a deep, unshakeable sense of unease. You are unsure if you can even harm it."
@@ -79,4 +82,54 @@
 		/datum/action/ability/activable/xeno/carnage,
 		/datum/action/ability/activable/xeno/feast,
 		/datum/action/ability/activable/xeno/devour,
+	)
+
+/datum/xeno_caste/gorger/thirster
+	caste_type_path = /mob/living/carbon/xenomorph/gorger/thirster
+	upgrade_name = ""
+	caste_name = "Thirster Gorger"
+	display_name = "Thirster"
+	upgrade = XENO_UPGRADE_BASETYPE
+	caste_desc = "A spindly, parched creature with a terrible hunger."
+	primordial_message = "We will drink until nothing is left."
+
+	// *** Ranged Attack *** //
+	spit_delay = 2 SECONDS
+	spit_types = list(/datum/ammo/xeno/clot)
+
+	// *** Speed *** //
+	speed = -0.5
+
+	// *** Health *** //
+	max_health = 500
+
+	// *** Gorger Abilities *** //
+	overheal_max = 150
+
+	actions = list(
+		/datum/action/ability/xeno_action/xeno_resting,
+		/datum/action/ability/xeno_action/watch_xeno,
+		/datum/action/ability/activable/xeno/psydrain/free,
+		/datum/action/ability/activable/xeno/proboscis,
+		/datum/action/ability/activable/xeno/xeno_spit/clot,
+		/datum/action/ability/activable/xeno/carnage,
+			///datum/action/ability/activable/xeno/tongue_hook,
+		/datum/action/ability/activable/xeno/taste,
+	)
+
+/datum/xeno_caste/gorger/thirster/primordial
+	upgrade_name = "Primordial"
+	upgrade = XENO_UPGRADE_PRIMO
+	caste_desc = "The ultimate drinker of blood. Its hunger is limitless."
+
+	actions = list(
+		/datum/action/ability/xeno_action/xeno_resting,
+		/datum/action/ability/xeno_action/watch_xeno,
+		/datum/action/ability/activable/xeno/psydrain/free,
+		/datum/action/ability/activable/xeno/proboscis,
+		/datum/action/ability/activable/xeno/xeno_spit/clot,
+		/datum/action/ability/activable/xeno/carnage,
+			///datum/action/ability/activable/xeno/tongue_hook,
+			///datum/action/ability/activable/xeno/taste,
+			///datum/action/ability/activable/xeno/force_feed,
 	)
