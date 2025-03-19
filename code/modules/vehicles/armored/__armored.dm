@@ -3,8 +3,8 @@
 	desc = "An adorable chunk of metal with an alarming amount of firepower designed to crush, immolate, destroy and maim anything that Nanotrasen wants it to. This model contains advanced Bluespace technology which allows a TARDIS-like amount of room on the inside."
 	icon = 'icons/obj/armored/1x1/tinytank.dmi'
 	icon_state = "tank"
-	pixel_x = -16
-	pixel_y = -8
+	pixel_w = -16
+	pixel_z = -8
 	layer = ABOVE_MOB_LAYER
 	max_drivers = 1
 	move_resist = INFINITY
@@ -27,9 +27,9 @@
 	/// sound that plays inside when we drive around
 	var/datum/looping_sound/drive_inside_loop = /datum/looping_sound/tank_drive_interior
 	/// sound to play outside the tank after the driver leaves
-	var/engine_off_sound = 'sound/vehicles/looping/tank_eng_interior_start.ogg'
+	var/engine_off_sound = 'sound/vehicles/looping/tank_eng_interior_stop.ogg'
 	/// sound to play inside the tank after the driver leaves
-	var/engine_off_interior_sound = 'sound/vehicles/looping/tank_eng_start.ogg'
+	var/engine_off_interior_sound = 'sound/vehicles/looping/tank_eng_stop.ogg'
 
 	///Cool and good turret overlay that allows independently swiveling guns
 	var/atom/movable/vis_obj/turret_overlay/turret_overlay = /atom/movable/vis_obj/turret_overlay
@@ -736,7 +736,7 @@
 	minimap_icon_state = initial(minimap_icon_state)
 	if(armored_flags & ARMORED_IS_WRECK)
 		minimap_icon_state += "_wreck"
-	SSminimaps.add_marker(src, minimap_flags, image('icons/UI_icons/map_blips_large.dmi', null, minimap_icon_state, HIGH_FLOAT_LAYER))
+	SSminimaps.add_marker(src, minimap_flags, image('icons/UI_icons/map_blips_large.dmi', null, minimap_icon_state, MINIMAP_BLIPS_LAYER))
 
 /atom/movable/vis_obj/turret_overlay
 	name = "Tank gun turret"

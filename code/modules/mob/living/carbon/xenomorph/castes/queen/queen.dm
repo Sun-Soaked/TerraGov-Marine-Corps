@@ -4,9 +4,6 @@
 	desc = "A huge, looming alien creature. The biggest and the baddest."
 	icon = 'icons/Xeno/castes/queen.dmi'
 	icon_state = "Queen Walking"
-	attacktext = "bites"
-	attack_sound = null
-	friendly = "nuzzles"
 	health = 300
 	maxHealth = 300
 	plasma_stored = 300
@@ -45,21 +42,21 @@
 
 	if(observed_xeno && !stat)
 		client.perspective = EYE_PERSPECTIVE
-		client.eye = observed_xeno
+		client.set_eye(observed_xeno)
 		return
 
 	if (ismovableatom(A))
 		client.perspective = EYE_PERSPECTIVE
-		client.eye = A
+		client.set_eye(A)
 		return
 
 	if (isturf(loc))
-		client.eye = client.mob
+		client.set_eye(client.mob)
 		client.perspective = MOB_PERSPECTIVE
 		return
 
 	client.perspective = EYE_PERSPECTIVE
-	client.eye = loc
+	client.set_eye(loc)
 
 /mob/living/carbon/xenomorph/queen/upgrade_xeno(newlevel, silent = FALSE)
 	. = ..()
