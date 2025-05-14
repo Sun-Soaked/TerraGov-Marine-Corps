@@ -105,7 +105,7 @@ Note that this means that snipers will have a slowdown of 3, due to the scope
 
 /obj/item/weapon/gun/rifle/sniper/antimaterial/do_fire(obj/object_to_fire)
 	if(laser_target)
-		var/obj/projectile/projectile_to_fire = object_to_fire
+		var/atom/movable/projectile/projectile_to_fire = object_to_fire
 		projectile_to_fire.projectile_behavior_flags |= PROJECTILE_PRECISE_TARGET
 	return ..()
 
@@ -316,7 +316,6 @@ Note that this means that snipers will have a slowdown of 3, due to the scope
 		slot_r_hand_str = 'icons/mob/inhands/guns/marksman_right_1.dmi',
 	)
 	max_shells = 25 //codex
-	muzzleflash_iconstate = "muzzle_flash_medium"
 	caliber = CALIBER_10X28_CASELESS //codex
 	fire_sound = 'sound/weapons/guns/fire/t64.ogg'
 	unload_sound = 'sound/weapons/guns/interact/m4ra_unload.ogg'
@@ -630,7 +629,7 @@ Note that this means that snipers will have a slowdown of 3, due to the scope
 	var/backblastdamage = TRUE
 
 //Adding in the rocket backblast. The tile behind the specialist gets blasted hard enough to down and slightly wound anyone
-/obj/item/weapon/gun/launcher/rocket/apply_gun_modifiers(obj/projectile/projectile_to_fire, atom/target)
+/obj/item/weapon/gun/launcher/rocket/apply_gun_modifiers(atom/movable/projectile/projectile_to_fire, atom/target)
 	. = ..()
 	var/turf/blast_source = get_turf(src)
 	var/thrown_dir = REVERSE_DIR(get_dir(blast_source, target))

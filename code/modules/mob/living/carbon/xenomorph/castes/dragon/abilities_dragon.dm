@@ -1,3 +1,5 @@
+#define DRAGON_GRABBED_ABILITY_TIME 1.5 SECONDS
+
 /datum/action/ability/activable/xeno/backhand
 	name = "Backhand"
 	action_icon_state = "backhand"
@@ -107,7 +109,7 @@
 	xeno_owner.move_resist = MOVE_FORCE_OVERPOWERING
 	xeno_owner.add_traits(list(TRAIT_HANDS_BLOCKED, TRAIT_IMMOBILE), DRAGON_ABILITY_TRAIT)
 	xeno_owner.visible_message(span_danger("[xeno_owner] lifts [grabbed_human] into the air and gets ready to slam!"))
-	if(do_after(xeno_owner, 3 SECONDS, IGNORE_HELD_ITEM, xeno_owner, BUSY_ICON_DANGER, extra_checks = CALLBACK(src, PROC_REF(grab_extra_check))))
+	if(do_after(xeno_owner, DRAGON_GRABBED_ABILITY_TIME, IGNORE_HELD_ITEM, xeno_owner, BUSY_ICON_DANGER, extra_checks = CALLBACK(src, PROC_REF(grab_extra_check))))
 		xeno_owner.face_atom(grabbed_human)
 		new /obj/effect/temp_visual/dragon/directional/backhand_slam(get_step(xeno_owner, grabbed_human), xeno_owner.dir)
 		xeno_owner.stop_pulling()
@@ -122,7 +124,7 @@
 					continue
 				animate(living_in_range, pixel_z = living_in_range.pixel_z + 8, time = 0.25 SECONDS, easing = CIRCULAR_EASING|EASE_OUT, flags = ANIMATION_END_NOW|ANIMATION_PARALLEL)
 				animate(pixel_z = living_in_range.pixel_z - 8, time = 0.25 SECONDS, easing = CIRCULAR_EASING|EASE_IN)
-		grabbed_human.take_overall_damage(get_damage() * 2.5, BRUTE, MELEE, max_limbs = 5, updating_health = TRUE) // 150
+		grabbed_human.take_overall_damage(get_damage() * 1.7, BRUTE, MELEE, max_limbs = 3, updating_health = TRUE) // 76.5
 		xeno_owner.gain_plasma(250)
 	xeno_owner.move_resist = initial(xeno_owner.move_resist)
 	xeno_owner.remove_traits(list(TRAIT_HANDS_BLOCKED, TRAIT_IMMOBILE), DRAGON_ABILITY_TRAIT)
@@ -139,11 +141,11 @@
 		return FALSE
 	var/obj/vehicle/affected_vehicle = affected_obj
 	if(ismecha(affected_vehicle))
-		affected_vehicle.take_damage(get_damage() * 3, BRUTE, MELEE, armour_penetration = 50, blame_mob = src)
+		affected_vehicle.take_damage(get_damage() * 3, BRUTE, MELEE, armour_penetration = 50, blame_mob = xeno_owner)
 	else if(isarmoredvehicle(affected_vehicle)) // Obtained from hitbox.
-		affected_vehicle.take_damage(get_damage() / 3, BRUTE, MELEE, blame_mob = src)
+		affected_vehicle.take_damage(get_damage() / 3, BRUTE, MELEE, blame_mob = xeno_owner)
 	else
-		affected_vehicle.take_damage(get_damage() * 2, BRUTE, MELEE, blame_mob = src)
+		affected_vehicle.take_damage(get_damage() * 2, BRUTE, MELEE, blame_mob = xeno_owner)
 	if(!(affected_vehicle in hit_vehicles) && vehicle_stun_length > 0)
 		for(var/mob/living/carbon/human/human_occupant in affected_vehicle.occupants)
 			human_occupant.apply_effect(vehicle_stun_length, EFFECT_PARALYZE)
@@ -370,12 +372,10 @@
 	/// The timer id for the timer that occurs every tick while the ability is active.
 	var/tick_timer
 
-/datum/action/ability/activable/xeno/backhand/dragon_breath/can_use_ability(atom/A, silent, override_flags)
-	if(ability_timer)
-		if(!silent)
-			xeno_owner.balloon_alert(xeno_owner, "already breathing fire")
-		return FALSE
-	return ..()
+/datum/action/ability/activable/xeno/backhand/dragon_breath/use_ability(atom/target)
+	if(!ability_timer)
+		return ..()
+	end_ability()
 
 /datum/action/ability/activable/xeno/backhand/dragon_breath/get_damage()
 	return 20 * xeno_owner.xeno_melee_damage_modifier
@@ -385,7 +385,7 @@
 	xeno_owner.move_resist = MOVE_FORCE_OVERPOWERING
 	xeno_owner.add_traits(list(TRAIT_HANDS_BLOCKED, TRAIT_IMMOBILE), DRAGON_ABILITY_TRAIT)
 	xeno_owner.visible_message(span_danger("[xeno_owner] inhales and turns their sights to [grabbed_human]..."))
-	if(do_after(xeno_owner, 3 SECONDS, IGNORE_HELD_ITEM, xeno_owner, BUSY_ICON_DANGER, extra_checks = CALLBACK(src, PROC_REF(grab_extra_check))))
+	if(do_after(xeno_owner, DRAGON_GRABBED_ABILITY_TIME, IGNORE_HELD_ITEM, xeno_owner, BUSY_ICON_DANGER, extra_checks = CALLBACK(src, PROC_REF(grab_extra_check))))
 		xeno_owner.stop_pulling()
 		xeno_owner.visible_message(span_danger("[xeno_owner] exhales a massive fireball right ontop of [grabbed_human]!"))
 		new /obj/effect/temp_visual/dragon/grab_fire(get_turf(grabbed_human))
@@ -398,7 +398,7 @@
 			debuff.add_stacks(10)
 		else
 			grabbed_human.apply_status_effect(STATUS_EFFECT_MELTING_FIRE, 10)
-		grabbed_human.take_overall_damage(get_damage() * 10, BURN, FIRE, max_limbs = length(grabbed_human.get_damageable_limbs()), updating_health = TRUE)
+		grabbed_human.take_overall_damage(get_damage() * 5.5, BURN, FIRE, max_limbs = length(grabbed_human.get_damageable_limbs()), updating_health = TRUE) // 110
 		grabbed_human.knockback(xeno_owner, 5, 1)
 		xeno_owner.gain_plasma(250)
 	xeno_owner.move_resist = initial(xeno_owner.move_resist)
@@ -413,6 +413,7 @@
 	xeno_owner.soft_armor = xeno_owner.soft_armor.modifyAllRatings(15)
 	ADD_TRAIT(xeno_owner, TRAIT_HANDS_BLOCKED, DRAGON_ABILITY_TRAIT)
 	RegisterSignal(xeno_owner, COMSIG_MOVABLE_MOVED, PROC_REF(on_move))
+	RegisterSignal(xeno_owner, COMSIG_MOB_STAT_CHANGED, PROC_REF(on_stat_changed))
 	starting_direction = get_cardinal_dir(xeno_owner, target)
 	visual_effect = new /obj/effect/temp_visual/dragon/fire_breath(get_step(xeno_owner, target), starting_direction)
 	ability_timer = addtimer(CALLBACK(src, PROC_REF(end_ability)), 10 SECONDS, TIMER_STOPPABLE|TIMER_UNIQUE)
@@ -481,13 +482,20 @@
 	for(var/something_in_turf in get_turf(fire_in_turf))
 		fire_in_turf.affect_atom(something_in_turf)
 
+/// Ends the ability if they are not conscious.
+/datum/action/ability/activable/xeno/backhand/dragon_breath/proc/on_stat_changed(datum/source, old_stat, new_stat)
+	SIGNAL_HANDLER
+	if(new_stat == CONSCIOUS)
+		return
+	end_ability()
+
 /// Undoes everything associated with starting the ability.
 /datum/action/ability/activable/xeno/backhand/dragon_breath/proc/end_ability()
 	xeno_owner.remove_movespeed_modifier(MOVESPEED_ID_DRAGON_BREATH)
 	xeno_owner.move_resist = initial(xeno_owner.move_resist)
 	xeno_owner.soft_armor = xeno_owner.soft_armor.modifyAllRatings(-15)
 	REMOVE_TRAIT(xeno_owner, TRAIT_HANDS_BLOCKED, DRAGON_ABILITY_TRAIT)
-	UnregisterSignal(xeno_owner, COMSIG_MOVABLE_MOVED)
+	UnregisterSignal(xeno_owner, list(COMSIG_MOVABLE_MOVED, COMSIG_MOB_STAT_CHANGED))
 	starting_direction = null
 	affected_turfs_in_order.Cut()
 	QDEL_NULL(visual_effect)
@@ -565,6 +573,10 @@
 				continue
 			if(!isobj(impacted_atom))
 				continue
+			if(isfire(impacted_atom))
+				var/obj/fire/fire = impacted_atom
+				fire.reduce_fire(20)
+				continue
 			if(!(impacted_atom.resistance_flags & XENO_DAMAGEABLE))
 				continue
 			var/obj/impacted_obj = impacted_atom
@@ -605,6 +617,10 @@
 	var/mob/living/carbon/human/grabbed_human
 	/// Damage taken so far while actively grabbing.
 	var/damage_taken_so_far = 0
+
+/datum/action/ability/activable/xeno/grab/remove_action(mob/living/ability_owner)
+	end_grabbing(no_cooldown = TRUE)
+	return ..()
 
 /datum/action/ability/activable/xeno/grab/can_use_ability(atom/target, silent, override_flags)
 	if(xeno_owner.status_flags & INCORPOREAL)
@@ -671,16 +687,20 @@
 /// Try to grab the thrown human.
 /datum/action/ability/activable/xeno/grab/proc/try_grabbing(mob/living/carbon/human/thrown_human)
 	if(QDELETED(thrown_human) || thrown_human.stat == DEAD || !xeno_owner.Adjacent(thrown_human))
+		end_grabbing()
 		return
 	if(!xeno_owner.start_pulling(thrown_human) || !xeno_owner.get_active_held_item())
+		end_grabbing()
 		return
 
 	grabbing_item = xeno_owner.get_active_held_item()
 	if(!grabbing_item)
+		end_grabbing()
 		return
 	grabbed_human = thrown_human
 	damage_taken_so_far = 0
 
+	ADD_TRAIT(grabbed_human, TRAIT_IMMOBILE, DRAGON_ABILITY_TRAIT)
 	RegisterSignal(grabbing_item, COMSIG_QDELETING, PROC_REF(end_grabbing))
 	RegisterSignal(grabbed_human, COMSIG_MOB_STAT_CHANGED, PROC_REF(human_stat_changed))
 	RegisterSignal(grabbed_human, COMSIG_LIVING_DO_MOVE_RESIST, PROC_REF(on_resist_attempt))
@@ -690,14 +710,19 @@
 	playsound(get_turf(xeno_owner), 'sound/voice/alien/pounce.ogg', 25, TRUE)
 
 /// Cleans up everything associated with the grabbing and ends the ability.
-/datum/action/ability/activable/xeno/grab/proc/end_grabbing()
+/datum/action/ability/activable/xeno/grab/proc/end_grabbing(datum/source, no_cooldown = FALSE)
 	SIGNAL_HANDLER
-	REMOVE_TRAIT(grabbed_human, TRAIT_IMMOBILE, DRAGON_ABILITY_TRAIT)
-	UnregisterSignal(grabbing_item, COMSIG_QDELETING)
-	UnregisterSignal(grabbed_human, list(COMSIG_MOB_STAT_CHANGED, COMSIG_LIVING_DO_MOVE_RESIST))
-	UnregisterSignal(xeno_owner, list(COMSIG_XENOMORPH_BRUTE_DAMAGE, COMSIG_XENOMORPH_BURN_DAMAGE))
+	if(grabbed_human)
+		REMOVE_TRAIT(grabbed_human, TRAIT_IMMOBILE, DRAGON_ABILITY_TRAIT)
+	if(grabbing_item) // Removing signals that are added only due to successful grab.
+		UnregisterSignal(grabbing_item, COMSIG_QDELETING)
+		UnregisterSignal(xeno_owner, list(COMSIG_XENOMORPH_BRUTE_DAMAGE, COMSIG_XENOMORPH_BURN_DAMAGE))
+		if(grabbed_human)
+			UnregisterSignal(grabbed_human, list(COMSIG_MOB_STAT_CHANGED, COMSIG_LIVING_DO_MOVE_RESIST))
 	grabbed_human = null
 	grabbing_item = null
+	if(no_cooldown)
+		return
 	succeed_activate()
 	add_cooldown()
 
