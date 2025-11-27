@@ -31,10 +31,10 @@
 	upgrade_threshold = TIER_ONE_THRESHOLD
 
 	// *** Flags *** //
-	caste_flags = CASTE_EVOLUTION_ALLOWED|CASTE_IS_BUILDER
+	caste_flags = CASTE_EVOLUTION_ALLOWED|CASTE_IS_BUILDER|CASTE_MUTATIONS_ALLOWED
 	can_hold_eggs = CAN_HOLD_TWO_HANDS
 	can_flags = parent_type::can_flags|CASTE_CAN_HOLD_FACEHUGGERS|CASTE_CAN_RIDE_CRUSHER|CASTE_CAN_BE_GIVEN_PLASMA
-	caste_traits = list(TRAIT_CAN_VENTCRAWL, TRAIT_CAN_HOLD_JELLY)
+	caste_traits = list(TRAIT_CAN_VENTCRAWL)
 
 	// *** Defense *** //
 	soft_armor = list(MELEE = 30, BULLET = 30, LASER = 30, ENERGY = 30, BOMB = 0, BIO = 15, FIRE = 30, ACID = 15)
@@ -65,6 +65,14 @@
 		/datum/action/ability/xeno_action/pheromones/emit_frenzy,
 		/datum/action/ability/activable/xeno/recycle,
 		/datum/action/ability/activable/xeno/place_pattern,
+	)
+
+	mutations = list(
+		/datum/mutation_upgrade/shell/scout,
+		/datum/mutation_upgrade/shell/together_in_claws,
+		/datum/mutation_upgrade/spur/revenge,
+		/datum/mutation_upgrade/veil/saving_grace,
+		/datum/mutation_upgrade/veil/vitality_transfer
 	)
 
 /datum/xeno_caste/drone/normal

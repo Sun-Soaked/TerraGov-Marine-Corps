@@ -325,6 +325,8 @@
 ///Signal handler for radial menu
 /obj/machinery/computer/camera_advanced/overwatch/military/proc/attempt_radial(datum/source, atom/A, params)
 	SIGNAL_HANDLER
+	if(SEND_SIGNAL(operator, COMSIG_DO_OVERWATCH_RADIAL) & OVERWATCH_RADIAL_HIDE)
+		return
 	INVOKE_ASYNC(src, PROC_REF(do_radial), source, A, params)
 
 ///Quick-select radial menu for Overwatch
@@ -434,7 +436,7 @@
 	new /obj/effect/overwatch_light(target)
 	use_power(10000)	//Huge light needs big power. Still less than autodocs.
 	TIMER_COOLDOWN_START(src, COOLDOWN_ORBITAL_SPOTLIGHT, SPOTLIGHT_COOLDOWN_DURATION)
-	to_chat(source, span_notice("Orbital spotlight activated. Duration : [SPOTLIGHT_DURATION]"))
+	to_chat(source, span_notice("Orbital spotlight activated. Duration : [SPOTLIGHT_DURATION / 10] Seconds"))
 
 //Print order visual to all marines squad hud and give them an arrow to follow the waypoint
 /obj/machinery/computer/camera_advanced/overwatch/military/proc/send_order(datum/source, atom/target)

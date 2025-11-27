@@ -281,6 +281,18 @@
 	default_ammo = /datum/ammo/bullet/rifle/mpi_km
 	max_rounds = 42
 
+//-------------------------------------------------------
+//PMC PR-416
+/obj/item/ammo_magazine/rifle/m416
+	name = "\improper RA-SH-416 magazine (10x25mm AP)"
+	desc = "A 10x25mm armor-piercing magazine."
+	caliber = CALIBER_10X25_CASELESS
+	icon_state = "pr416"
+	icon_state_mini = "mag_rifle_big"
+	default_ammo = /datum/ammo/bullet/rifle/heavy/ap
+	max_rounds = 40
+
+
 //TX-16 AUTOMATIC SHOTGUN
 
 /obj/item/ammo_magazine/rifle/tx15_flechette
@@ -317,6 +329,18 @@
 	default_ammo = /datum/ammo/bullet/smartmachinegun
 	max_rounds = 250
 	reload_delay = 2.5 SECONDS
+
+/obj/item/ammo_magazine/smart_gpmg
+	name = "\improper SG-60 box magazine (10x26mm HP)"
+	desc = "A belt box for the SG-60 machinegun."
+	icon_state = "sg60"
+	icon = 'icons/obj/items/ammo/machinegun.dmi'
+	icon_state_mini = "mag_gpmg"
+	caliber = CALIBER_10x26_CASELESS
+	default_ammo = /datum/ammo/bullet/smartmachinegun
+	w_class = WEIGHT_CLASS_NORMAL
+	max_rounds = 250
+	reload_delay = 3 SECONDS
 
 //-------------------------------------------------------
 //SMART TARGET RIFLE AMMUNITION
@@ -385,6 +409,19 @@
 	icon_state = "sg153_fl"
 	icon_state_mini = "mag_rifle_cyan"
 	default_ammo = /datum/ammo/bullet/spottingrifle/flak
+
+//-------------------------------------------------------
+//SMARTRIFLE AMMUNITION
+
+/obj/item/ammo_magazine/rifle/standard_smartrifle
+	name = "\improper SG-25 magazine (10x26mm HP)"
+	desc = "A 10mm assault rifle magazine."
+	caliber = CALIBER_10x26_CASELESS
+	icon_state = "sg25"
+	w_class = WEIGHT_CLASS_NORMAL
+	default_ammo = /datum/ammo/bullet/smartmachinegun
+	max_rounds = 100
+	icon_state_mini = "mag_rifle_big"
 
 
 //-------------------------------------------------------
@@ -743,19 +780,110 @@
 	name = "\improper L26 box mag (5.56x45mm)"
 	desc = "A 200 round box mag for the L26."
 	caliber = CALIBER_556X45
-	default_ammo = /datum/ammo/bullet/rifle/machinegun
+	default_ammo = /datum/ammo/bullet/rifle
 	icon_state = "l26"
 	icon = 'icons/obj/items/ammo/machinegun.dmi'
 	icon_state_mini = "mag_drum_big_long"
 	bonus_overlay = "l26_100"
 	max_rounds = 200
 
+//CC/67
+
 /obj/item/ammo_magazine/rifle/vsd_rifle
-	name = "\improper C550 magazine (10x27mm)"
+	name = "\improper CC/67 magazine (10x27mm)"
 	desc = "A 10x27mm rifle magazine."
 	caliber = CALIBER_10x27_CASELESS
 	icon_state = "c550"
 	icon_state_mini = "mag_rifle_big"
 	w_class = WEIGHT_CLASS_NORMAL
-	default_ammo = /datum/ammo/bullet/rifle
+	default_ammo = /datum/ammo/bullet/rifle/standard_dmr
 	max_rounds = 30
+
+//CC/74
+
+/obj/item/ammo_magazine/rifle/vsd_mg_main
+	name = "\improper CC/74 box mag (7.62x39mm)"
+	desc = "A 150 round box mag for the CC/74."
+	caliber = CALIBER_762X39
+	default_ammo = /datum/ammo/bullet/rifle/heavy
+	icon_state = "c74"
+	icon = 'icons/obj/items/ammo/machinegun.dmi'
+	icon_state_mini = "mag_gpmg"
+	bonus_overlay = "c74_100"
+	max_rounds = 150
+
+//CC/67
+
+/obj/item/ammo_magazine/rifle/vsd_carbine
+	name = "\improper CC/67 magazine (10x24mm)"
+	desc = "A 10x27mm rifle magazine."
+	caliber = CALIBER_10X24_CASELESS
+	icon_state = "c67"
+	icon_state_mini = "mag_rifle_big"
+	w_class = WEIGHT_CLASS_NORMAL
+	default_ammo = /datum/ammo/bullet/rifle
+	max_rounds = 45
+
+
+
+/obj/item/ammo_magazine/rifle/cb31
+	name = "\improper CC/B/31 breaching slug magazine (12 gauge)"
+	desc = "A magazine of 16 gauge slugs, for the SH-15."
+	caliber = CALIBER_16G
+	icon_state = "cb31"
+	icon_state_mini = "mag_tx15_slug"
+	default_ammo = /datum/ammo/bullet/shotgun/breaching
+	max_rounds = 25
+	bonus_overlay = "cb31"
+
+//.410 autoshotgun ammo
+
+/obj/item/ammo_magazine/rifle/sh410_sabot
+	name = "\improper SH-410 sabot magazine (.410 gauge)"
+	desc = "A magazine of .410 gauge sabot rounds, for the SH-410."
+	caliber = CALIBER_410_AUTOSHOTGUN
+	icon_state = "sh410_sabot"
+	icon_state_mini = "mag_sh410_sabot"
+	default_ammo = /datum/ammo/bullet/shotgun/sh410_sabot
+	max_rounds = 15
+	bonus_overlay = "sh410_sabot"
+
+/obj/item/ammo_magazine/rifle/sh410_buckshot
+	name = "\improper SH-410 buckshot magazine (.410 gauge)"
+	desc = "A magazine of .410 gauge buckshot rounds, for the SH-410."
+	caliber = CALIBER_410_AUTOSHOTGUN
+	icon_state = "sh410_buckshot"
+	icon_state_mini = "mag_sh410_buckshot"
+	default_ammo = /datum/ammo/bullet/shotgun/sh410_buckshot
+	max_rounds = 15
+	bonus_overlay = "sh410_buckshot"
+
+/obj/item/ammo_magazine/rifle/sh410_tracker //fuck it why not
+	name = "\improper SH-410 tracker magazine (.410 gauge)"
+	desc = "A magazine of .410 gauge tracker rounds, for the SH-410...?"
+	caliber = CALIBER_410_AUTOSHOTGUN
+	icon_state = "sh410_tracker"
+	icon_state_mini = "mag_sh410_tracker"
+	default_ammo = /datum/ammo/bullet/shotgun/mbx900_tracker
+	max_rounds = 15
+	bonus_overlay = "sh410_tracker"
+
+/obj/item/ammo_magazine/rifle/sh410_ricochet //bounce
+	name = "\improper SH-410 ricochet magazine (.410 gauge)"
+	desc = "A magazine of .410 gauge ricochet rounds, for the SH-410. They bounce up to two times off of surfaces."
+	caliber = CALIBER_410_AUTOSHOTGUN
+	icon_state = "sh410_ricochet"
+	icon_state_mini = "mag_sh410_ricochet"
+	default_ammo = /datum/ammo/bullet/shotgun/sh410_ricochet/two
+	max_rounds = 15
+	bonus_overlay = "sh410_ricochet"
+
+/obj/item/ammo_magazine/rifle/sh410_gas //gas base
+	name = "\improper SH-410 gas magazine (.410 gauge)"
+	desc = "A magazine of .410 gauge gas rounds, for the SH-410. These leave a trail of gas when fired."
+	caliber = CALIBER_410_AUTOSHOTGUN
+	icon_state = "sh410_gas"
+	icon_state_mini = "mag_sh410_gas"
+	default_ammo = /datum/ammo/bullet/shotgun/sh410_gas
+	max_rounds = 15
+	bonus_overlay = "sh410_gas"
