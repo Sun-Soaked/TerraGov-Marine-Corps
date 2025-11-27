@@ -44,7 +44,7 @@
 	if(!density)
 		for(var/atom/thing_to_check AS in loc)
 			if(thing_to_check.density)
-				balloon_alert(user, "Blocked by [thing_to_check]")
+				balloon_alert(user, "blocked by [thing_to_check]!")
 				return
 	playsound(loc, 'sound/machines/hydraulics_1.ogg', 40, 1)
 	if(!do_after(user, 7 SECONDS, IGNORE_HELD_ITEM, src))
@@ -184,8 +184,8 @@
 	var/obj/machinery/computer/dropship_weapons/linked_console
 	///whether they get a button when shown on the shuttle console's equipment list.
 	var/obj/docking_port/mobile/marine_dropship/linked_shuttle
-	///used by the dropship console code when this equipment is selected
-	var/screen_mode = 0
+	///used by the dropship console code when this equipment is selected TODO we should really kill this off
+	var/screen_mode = FALSE
 	///how many points it costs to build this with the fabricator, set to 0 if unbuildable.
 	var/point_cost = 0
 	///what kind of ammo this uses if any
@@ -326,10 +326,10 @@
 
 /obj/structure/dropship_equipment/shuttle/nade_launcher/equipment_interact(mob/user)
 	if(!COOLDOWN_FINISHED(src, deploy_cooldown)) //prevents spamming deployment
-		user.balloon_alert(user, "Busy")
+		user.balloon_alert(user, "busy!")
 		return
 	if(length(loaded_grenades) <= 0) //check for inserted flares
-		user.balloon_alert(user, "No grenades left")
+		user.balloon_alert(user, "no grenades left!")
 		return
 	var/turf/target = get_ranged_target_turf(src, dir, 10)
 	var/obj/item/explosive/grenade/nade_to_launch = loaded_grenades[1]
@@ -404,12 +404,12 @@
 	if(!enabled)
 		enabled = TRUE
 		update_appearance()
-		user.balloon_alert(user, "Enabled")
+		user.balloon_alert(user, "enabled")
 		RegisterSignal(linked_shuttle, COMSIG_SHUTTLE_SETMODE, PROC_REF(drop_pellet_to_location))
 		return
 	enabled = FALSE
 	update_appearance()
-	user.balloon_alert(user, "Disabled")
+	user.balloon_alert(user, "disabled")
 	UnregisterSignal(linked_shuttle, COMSIG_SHUTTLE_SETMODE)
 
 /obj/structure/dropship_equipment/shuttle/tangle_emitter/update_equipment()
@@ -417,9 +417,9 @@
 	if(ship_base)
 		setDir(ship_base.dir)
 		if(enabled)
-			balloon_alert_to_viewers("Enabled")
+			balloon_alert_to_viewers("enabled")
 		else
-			balloon_alert_to_viewers("Disabled")
+			balloon_alert_to_viewers("disabled")
 	else
 		setDir(initial(dir))
 	update_appearance()
@@ -459,7 +459,7 @@
 	addtimer(CALLBACK(src, PROC_REF(on_cooldown_end)), cooldown_length + 1 SECONDS)
 	playsound(loc, 'sound/weapons/guns/fire/tank_smokelauncher.ogg', 40, 1)
 	console.say("Emitter system deployed successfully.")
-	landing_spot.balloon_alert_to_viewers("A small pellet falls out of the sky!")
+	landing_spot.balloon_alert_to_viewers("small pellet falls out of the sky!")
 
 /// Special effects for when system cooldown finishes
 /obj/structure/dropship_equipment/shuttle/tangle_emitter/proc/on_cooldown_end()
@@ -656,7 +656,7 @@
 	undeployed_icon_state = "hl_system"
 
 /obj/structure/dropship_equipment/shuttle/weapon_holder/mortar_holder
-	name = "mortar deployment system"
+	name = "double barrel mortar deployment system"
 	desc = "A box that deploys a TA-55DB mortar. Fits on the crewserved weapon attach points of dropships. You need a powerloader to lift it."
 	icon_state = "mortar_system"
 	point_cost = 300
@@ -757,7 +757,7 @@
 	bound_width = 32
 	bound_height = 64
 	dropship_equipment_flags = USES_AMMO|IS_WEAPON|IS_INTERACTABLE|FIRE_MISSION_ONLY
-	screen_mode = 1
+	screen_mode = TRUE
 	///used for weapon cooldown after use
 	COOLDOWN_DECLARE(last_fired)
 	///primary firing sound on the plane

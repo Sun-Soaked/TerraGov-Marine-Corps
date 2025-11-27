@@ -175,7 +175,7 @@
 	penetration = ammo.penetration
 	sundering = ammo.sundering
 	accuracy   += ammo.accuracy
-	accuracy   *= rand(95 - ammo.accuracy_var_low, 105 + ammo.accuracy_var_high) * 0.01 //Rand only works with integers.
+	accuracy   *= rand(95 - ammo.accuracy_variation, 105 + ammo.accuracy_variation) * 0.01 //Rand only works with integers.
 	damage_falloff = ammo.damage_falloff
 	armor_type = ammo.armor_type
 	proj_max_range = ammo.max_range
@@ -296,6 +296,42 @@
 
 	apx += pixel_x //Update the absolute pixels with the offset.
 	apy += pixel_y
+
+	if(original_target_turf && original_target_turf.z != z)
+		/**
+		 * For gameplays sake we want some inconsistent behaviour here
+		 * Specifically, you have to on an edge or flying to shoot DOWN (so people can see you)
+		 * but, if you're below, you want to only be able to shoot up if people can see you
+		 * We also hand roll some zMove/zFall type code cus yknow, hot & snowflake
+		 */
+		if(original_target_turf.z > z) // means we are aiming up
+			var/turf/z_destination = can_z_move(UP, z_move_flags = ZMOVE_PROJECTILE_UP_CHECKS)
+			var/turf/targetted_z_destination = z_destination
+			// need to keep going higher
+			if(z_destination && (z_destination.z != original_target_turf.z))
+				while((targetted_z_destination.z != original_target_turf.z) && targetted_z_destination)
+					targetted_z_destination = can_z_move(UP, targetted_z_destination, z_move_flags = ZMOVE_PROJECTILE_UP_CHECKS)
+				if(targetted_z_destination)
+					z_destination = targetted_z_destination
+			if(z_destination)
+				forceMove(z_destination)
+		else
+			var/turf/z_destination = can_z_move(DOWN, z_move_flags = ZMOVE_PROJECTILE_DOWN_CHECKS)
+			if(!z_destination)
+				var/turf/same_z_checker = get_step(src, dir)
+				var/turf/below_z_checker = get_dir_multiz(same_z_checker, DOWN)
+				z_destination = can_z_move(DOWN, same_z_checker, below_z_checker, z_move_flags = ZMOVE_PROJECTILE_DOWN_CHECKS)
+
+			var/turf/targetted_z_destination = z_destination
+			// need to keep going lower
+			if(z_destination && (z_destination.z != original_target_turf.z))
+				while((targetted_z_destination.z != original_target_turf.z) && targetted_z_destination)
+					targetted_z_destination = can_z_move(DOWN, targetted_z_destination, z_move_flags = ZMOVE_PROJECTILE_UP_CHECKS)
+				if(targetted_z_destination)
+					z_destination = targetted_z_destination
+			if(z_destination)
+				forceMove(z_destination)
+
 
 	if(firer && !recursivity)
 		record_projectile_fire(firer)
@@ -840,6 +876,8 @@ So if we are on the 32th absolute pixel coordinate we are on tile 1, but if we a
 	if((wear_id?.iff_signal & proj.iff_signal))
 		proj.damage -= proj.damage*proj.damage_marine_falloff
 		return FALSE
+	if((proj.ammo.ammo_behavior_flags & AMMO_SKIPS_ZOMBIE) && iszombie(src))
+		return FALSE
 	return ..()
 
 
@@ -852,7 +890,7 @@ So if we are on the 32th absolute pixel coordinate we are on tile 1, but if we a
 		return FALSE
 	if(proj.ammo.ammo_behavior_flags & AMMO_SKIPS_ALIENS)
 		return FALSE
-	if(proj.ammo.ammo_behavior_flags & AMMO_SNIPER)
+	if((proj.ammo.ammo_behavior_flags & AMMO_SNIPER) && proj.iff_signal)
 		var/datum/status_effect/incapacitating/recently_sniped/sniped = is_recently_sniped()
 		var/obj/item/weapon/gun/shooter = proj.shot_from
 
@@ -866,7 +904,7 @@ So if we are on the 32th absolute pixel coordinate we are on tile 1, but if we a
 
 			sniped.duration = max(world.time + shooter.fire_delay, sniped.duration)
 
-			if(sniped.shooter != WEAKREF(shooter)) //different gun shot us, apply the effect.
+			if(sniped.shooter != WEAKREF(shooter))//different gun shot us, apply the effect.
 				proj.damage = proj.damage * 0.1
 
 			sniped.shooter = WEAKREF(shooter)
@@ -952,7 +990,7 @@ So if we are on the 32th absolute pixel coordinate we are on tile 1, but if we a
 			feedback_flags |= BULLET_FEEDBACK_SCREAM
 		bullet_message(proj, feedback_flags, damage)
 		proj.play_damage_effect(src)
-		apply_damage(damage, proj.ammo.damage_type, proj.def_zone, updating_health = TRUE) //This could potentially delete the source.
+		apply_damage(damage, proj.ammo.damage_type, proj.def_zone, updating_health = TRUE, attacker = proj.firer) //This could potentially delete the source.
 	else
 		bullet_message(proj, feedback_flags)
 

@@ -203,13 +203,13 @@ WEAPONS
 	contains = list(/obj/item/ammo_magazine/heavy_isg/sabot)
 	cost = 50
 
-/datum/supply_packs/weapons/heayvlaser_emplacement
+/datum/supply_packs/weapons/heavy_laser_emplacement
 	name = "TE-9001 mounted heavy laser"
 	contains = list(/obj/item/weapon/gun/energy/lasgun/lasrifle/heavy_laser/deployable)
-	cost = 800
+	cost = 400
 
 
-/datum/supply_packs/weapons/heayvlaser_ammo
+/datum/supply_packs/weapons/heavy_laser_ammo
 	name = "TE-9001 mounted heavy laser cell"
 	contains = list(/obj/item/cell/lasgun/heavy_laser)
 	cost = 15
@@ -351,7 +351,7 @@ WEAPONS
 /datum/supply_packs/weapons/tx8
 	name = "BR-8 scout rifle"
 	contains = list(/obj/item/weapon/gun/rifle/tx8)
-	cost = 400
+	cost = TX8_PRICE
 	available_against_xeno_only = TRUE
 
 /datum/supply_packs/weapons/scout_regular
@@ -429,7 +429,7 @@ WEAPONS
 /datum/supply_packs/weapons/zx76
 	name = "ZX-76 twin-barrled burst shotgun"
 	contains = list(/obj/item/weapon/gun/shotgun/zx76)
-	cost = 1000
+	cost = ZX_PRICE
 
 /datum/supply_packs/weapons/shotguntracker
 	name = "12 gauge tracker shells"
@@ -464,7 +464,7 @@ WEAPONS
 /datum/supply_packs/weapons/antimaterial
 	name = "SR-26 antimaterial rifle (AMR) kit"
 	contains = list(/obj/item/weapon/gun/rifle/sniper/antimaterial)
-	cost = 775
+	cost = AMR_PRICE
 	available_against_xeno_only = TRUE
 
 /datum/supply_packs/weapons/antimaterial_ammo

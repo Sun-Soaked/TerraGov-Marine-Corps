@@ -43,8 +43,8 @@
 			damage += base_damage * 2
 			grabbed_mob.visible_message(span_danger("<big>[user] crushes [grabbed_mob] against [src]!</big>"))
 			log_combat(user, grabbed_mob, "crushed", "", "against [src]")
-	grabbed_mob.apply_damage(damage, blocked = MELEE, updating_health = TRUE)
-	apply_damage(damage, blocked = MELEE, updating_health = TRUE)
+	grabbed_mob.apply_damage(damage, blocked = MELEE, updating_health = TRUE, attacker = user)
+	apply_damage(damage, blocked = MELEE, updating_health = TRUE, attacker = user)
 	playsound(src, 'sound/weapons/heavyhit.ogg', 40)
 	return TRUE
 
@@ -65,11 +65,11 @@
 		if(thrown_mob.mob_size >= mob_size)
 			apply_damage((thrown_mob.mob_size + 1 - mob_size) * speed, BRUTE, BODY_ZONE_CHEST, MELEE, updating_health = TRUE)
 		if(thrown_mob.mob_size <= mob_size)
-			thrown_mob.stop_throw()
+			thrown_mob.set_throwing(FALSE)
 			thrown_mob.apply_damage(speed, BRUTE, BODY_ZONE_CHEST, MELEE, updating_health = TRUE)
 	else if(isobj(AM))
 		var/obj/O = AM
-		O.stop_throw()
+		O.set_throwing(FALSE)
 		apply_damage(O.throwforce*(speed * 0.2), O.damtype, BODY_ZONE_CHEST, MELEE, is_sharp(O), has_edge(O), TRUE, O.penetration)
 
 	visible_message(span_warning("[src] has been hit by [AM]."), null, null, 5)
@@ -151,6 +151,14 @@
 	update_fire()
 	UnregisterSignal(src, COMSIG_LIVING_DO_RESIST)
 
+///Returns true if the mob is on fire
+/mob/living/proc/is_on_fire()
+	if(on_fire) //todo: someone please make normal fire a status effect
+		return TRUE
+	if(has_status_effect(STATUS_EFFECT_MELTING_FIRE))
+		return TRUE
+	return FALSE
+
 ///Updates fire visuals
 /mob/living/proc/update_fire()
 	return
@@ -176,6 +184,7 @@
 		fire_stacks = min(0, fire_stacks)//So we dry ourselves back to default, nonflammable.
 	if(!on_fire)
 		return 1
+	SEND_SIGNAL(src, COMSIG_LIVING_HANDLE_FIRE)
 	if(fire_stacks > 0)
 		adjust_fire_stacks(-1) //the fire is consumed slowly
 
@@ -242,7 +251,7 @@
 /mob/living/effect_smoke(obj/effect/particle_effect/smoke/S)
 	. = ..()
 	if(!.)
-		if(CHECK_BITFIELD(S.smoke_traits, SMOKE_CAMO))
+		if((S.smoke_traits & SMOKE_CAMO) && !(S.smoke_traits & SMOKE_XENO))
 			smokecloak_off()
 		return
 	if(status_flags & GODMODE)

@@ -48,6 +48,11 @@
 	var/camera_light_on = FALSE
 	var/list/obj/machinery/camera/lit_cameras = list()
 
+	/// List of atoms that the AI's camera can quickly jump to through keys 1-9
+	VAR_FINAL/list/atom/cam_hotkeys = new/list(9)
+	/// The camera's last location before jumping
+	VAR_FINAL/atom/cam_prev
+
 	var/datum/trackable/track
 	///Selected order to give to marine
 	var/datum/action/innate/order/current_order
@@ -289,6 +294,27 @@
 /mob/living/silicon/ai/proc/camera_visibility(mob/camera/aiEye/moved_eye)
 	GLOB.cameranet.visibility(moved_eye, client, all_eyes, moved_eye.use_static)
 
+/mob/living/silicon/ai/key_down(_key, client/user)
+	if(findtext(_key, "numpad")) //if it's a numpad number, we can convert it to just the number
+		_key = _key[7] //strings, lists, same thing really
+	switch(_key)
+		if("`", "0")
+			if(cam_prev)
+				//ai_tracking_tool.reset_tracking()
+				eyeobj.setLoc(cam_prev)
+			return
+		if("1", "2", "3", "4", "5", "6", "7", "8", "9")
+			_key = text2num(_key)
+			if(user.keys_held["Ctrl"]) //do we assign a new hotkey?
+				cam_hotkeys[_key] = eyeobj.loc
+				to_chat(src, "Location saved to Camera Group [_key].")
+				return
+			if(cam_hotkeys[_key]) //if this is false, no hotkey for this slot exists.
+				cam_prev = eyeobj.loc
+				//ai_tracking_tool.reset_tracking()
+				eyeobj.setLoc(cam_hotkeys[_key])
+				return
+	return ..()
 
 /mob/living/silicon/ai/proc/can_see(atom/A)
 	if(!isturf(loc))
@@ -331,7 +357,7 @@
 	if(istype(new_eye, /obj/machinery/camera))
 		current = new_eye
 	if(client)
-		if(ismovableatom(new_eye))
+		if(ismovable(new_eye))
 			if(new_eye != GLOB.ai_camera_room_landmark)
 				end_multicam()
 			client.perspective = EYE_PERSPECTIVE
@@ -516,7 +542,7 @@
 		KEYBINDING_NORMAL = COMSIG_KB_SENDORDER,
 	)
 
-/datum/action/innate/squad_message/can_use_action()
+/datum/action/innate/squad_message/can_use_action(silent, override_flags, selecting)
 	. = ..()
 	if(owner.stat)
 		to_chat(owner, span_warning("You cannot give orders in your current state."))

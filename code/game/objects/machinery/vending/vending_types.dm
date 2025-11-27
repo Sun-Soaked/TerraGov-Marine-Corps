@@ -112,6 +112,7 @@
 		/obj/item/reagent_containers/food/snacks/enrg_bar = -1,
 		/obj/item/reagent_containers/food/snacks/wrapped/booniebars = -1,
 		/obj/item/reagent_containers/food/snacks/wrapped/chunk = -1,
+		/obj/item/reagent_containers/food/drinks/shaker/protein = -1,
 		/obj/item/reagent_containers/food/snacks/wrapped/barcaridine = -1,
 		/obj/item/reagent_containers/food/snacks/lollipop = -1,
 		/obj/item/reagent_containers/food/snacks/wrapped/berrybar = -1,
@@ -173,7 +174,12 @@
 		"Hypospray" = list (
 			/obj/item/reagent_containers/hypospray/autoinjector/dexalinplus = 10,
 			/obj/item/reagent_containers/hypospray/autoinjector/sleeptoxin = 10,
-			/obj/item/reagent_containers/hypospray/advanced = 30,
+			/obj/item/reagent_containers/hypospray/advanced = 5,
+			/obj/item/reagent_containers/hypospray/advanced/bicaridine = 5,
+			/obj/item/reagent_containers/hypospray/advanced/kelotane = 5,
+			/obj/item/reagent_containers/hypospray/advanced/tramadol = 5,
+			/obj/item/reagent_containers/hypospray/advanced/tricordrazine = 5,
+			/obj/item/reagent_containers/hypospray/advanced/dylovene = 5,
 		),
 		"Reagent Bottle" = list(
 			/obj/item/reagent_containers/glass/bottle/bicaridine = -1,
@@ -184,6 +190,7 @@
 			/obj/item/reagent_containers/glass/bottle/inaprovaline = -1,
 			/obj/item/reagent_containers/glass/bottle/paracetamol = -1,
 			/obj/item/reagent_containers/glass/bottle/isotonic = -1,
+			/obj/item/reagent_containers/glass/bottle/leporazine = -1,
 			/obj/item/reagent_containers/glass/bottle/dexalin = 6,
 			/obj/item/reagent_containers/glass/bottle/spaceacillin = 6,
 			/obj/item/reagent_containers/glass/bottle/oxycodone = 6,
@@ -245,6 +252,7 @@
 			/obj/item/reagent_containers/glass/bottle/inaprovaline = -1,
 			/obj/item/reagent_containers/glass/bottle/paracetamol = -1,
 			/obj/item/reagent_containers/glass/bottle/isotonic = -1,
+			/obj/item/reagent_containers/glass/bottle/leporazine = -1,
 			/obj/item/reagent_containers/glass/bottle/sleeptoxin = -1,
 			/obj/item/reagent_containers/glass/bottle/spaceacillin = -1,
 			/obj/item/reagent_containers/glass/bottle/dexalin = -1,
@@ -567,7 +575,7 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/vending/nanoammo, (-26))
 		var/obj/item/storage/box/visual/magazine/ammo_box = I
 		for(var/mag in ammo_box.contents)
 			stock(mag, user, FALSE)
-		user?.balloon_alert(user, "The NanoAmmo organizes the contents of the [ammo_box.name].");
+		user?.balloon_alert(user, "contents organized")
 		return
 
 	else if(istype(I, /obj/item/shotgunbox))
@@ -579,7 +587,7 @@ MAPPING_DIRECTIONAL_HELPERS(/obj/machinery/vending/nanoammo, (-26))
 					if(!stock(shotgun_shell_box, user, show_feedback = FALSE))
 						break
 					big_shotgun_box.current_rounds -= shotgun_shell_box.max_rounds
-				user?.balloon_alert(user, "The NanoAmmo organizes the [big_shotgun_box.ammo_type.name]s.");
+				user?.balloon_alert(user, "shells organized")
 				return
 
 	return ..()
