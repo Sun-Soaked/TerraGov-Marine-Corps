@@ -438,9 +438,8 @@
 			push_anchored = TRUE
 	if(ismob(AM))
 		var/atom/movable/mob_buckle = mob_to_push.buckled
-		// If we can't pull them because of what they're buckled to, make sure we can push the thing they're buckled to instead.
-		// If neither are true, we're not pushing anymore.
-		if(mob_buckle && (mob_buckle.buckle_flags & BUCKLE_PREVENTS_PULL || (force < (mob_buckle.move_resist * MOVE_FORCE_PUSH_RATIO))))
+		//If they're buckled to something, we need to be able to push that instead
+		if(mob_buckle && (force < (mob_buckle.move_resist * MOVE_FORCE_PUSH_RATIO)))
 			now_pushing = FALSE
 			return
 	if((AM.anchored && !push_anchored) || (force < (AM.move_resist * MOVE_FORCE_PUSH_RATIO)))
@@ -964,7 +963,7 @@ below 100 is not dizzy
 			wielded_item.unwield(src) //Get rid of it.
 	hand = !hand
 	SEND_SIGNAL(src, COMSIG_LIVING_SWAPPED_HANDS)
-	if(hud_used.l_hand_hud_object && hud_used.r_hand_hud_object)
+	if(hud_used?.l_hand_hud_object && hud_used?.r_hand_hud_object)
 		hud_used.l_hand_hud_object.update_icon()
 		hud_used.r_hand_hud_object.update_icon()
 	return

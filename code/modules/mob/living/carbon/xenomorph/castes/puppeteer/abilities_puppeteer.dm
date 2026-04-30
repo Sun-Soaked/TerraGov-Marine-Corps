@@ -176,6 +176,7 @@
 	ADD_TRAIT(victim, TRAIT_HOLLOW, TRAIT_GENERIC)
 	victim.spawn_gibs()
 	var/mob/living/carbon/xenomorph/puppet/puppet = new(victim_turf, owner)
+	puppet.name = victim.name
 	puppet.voice = victim.voice
 	add_puppet(puppet)
 	add_cooldown()
@@ -313,7 +314,7 @@
 	name = "Articulate"
 	action_icon_state = "mimicry"
 	action_icon = 'icons/Xeno/actions/puppeteer.dmi'
-	desc = "Takes direct control of a Puppet’s vocal chords. Allows you to speak directly through your puppet to the talls."
+	desc = "Takes direct control of a Puppet's vocal chords. Allows you to speak directly through your puppet to humans."
 	cooldown_duration = 10 SECONDS
 	target_flags = ABILITY_MOB_TARGET
 	///Whether we should cancel instead of doing the thing when activated

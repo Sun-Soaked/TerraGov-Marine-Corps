@@ -22,6 +22,9 @@
 #define CAT_FCSUP "COMMANDER SUPPLIES"
 #define CAT_LOAD "LOADOUT"
 
+// Zombie Crash
+#define CAT_ZOMBIE_CRASH "ZOMBIE CRASH"
+
 // Synth Special Categories
 #define CAT_SMR "SUITS AND ARMOR" // Synth's suits
 #define CAT_SHN "HATS" // Synth's non-protective hats
@@ -73,6 +76,7 @@ GLOBAL_LIST_INIT(engineer_gear_listed_products, list(
 		/obj/item/cell/rtg/large = list(CAT_ENGSUP, "Large recharger powercell", 15, "engi-tool"),
 		/obj/item/cell/rtg/small = list(CAT_ENGSUP, "Recharger powercell", 5, "engi-tool"),
 		/obj/item/cell/high = list(CAT_ENGSUP, "High capacity powercell", 1, "engi-tool"),
+		/obj/effect/teleporter_linker = list(CAT_ENGSUP, "Teleporters", 30, "engi-tool"),
 		/obj/item/clothing/glasses/welding/superior = list(CAT_ENGSUP, "Superior welding goggles", 2, "engi-tool"),
 		/obj/item/armor_module/module/welding/superior = list(CAT_ENGSUP, "Superior welding module", 2, "engi-tool"),
 		/obj/item/explosive/plastique/genghis_charge = list(CAT_ENGSUP, "EX-62 Genghis incendiary charge", 15, "engi-explosive"),
@@ -83,7 +87,9 @@ GLOBAL_LIST_INIT(engineer_gear_listed_products, list(
 		/obj/item/minelayer = list(CAT_ENGSUP, "M21 APRDS \"Minelayer\"", 5, "engi-explosive"),
 		/obj/item/storage/box/crate/minisentry = list(CAT_ENGSUP, "ST-580 point defense sentry kit", 40, "engi-other"),
 		/obj/item/tesla_turret = list(CAT_ENGSUP, "Tesla Turret", 30, "engi-other"),
-		/obj/structure/closet/crate/uav_crate = list(CAT_ENGSUP, "Iguana Unmanned Vehicle", 50, "engi-other"),
+		/obj/structure/closet/crate/uav_crate = list(CAT_ENGSUP, "Iguana Unmanned Vehicle", 25, "engi-other"),
+		/obj/structure/closet/crate/uav_crate/turret = list(CAT_ENGSUP, "Light UV Machinegun", 15, "engi-other"),
+		/obj/item/uav_turret/claw = list(CAT_ENGSUP, "UV Claw", 5, "engi-other"),
 		/obj/structure/closet/crate/uvt_crate = list(CAT_ENGSUP, "Skink Unmanned Vehicle", 5, "engi-other"),
 		/obj/item/attachable/buildasentry = list(CAT_ENGSUP, "Build-A-Sentry Attachment", 30, "engi-other"),
 		/obj/item/ammo_magazine/flamer_tank/large = list(CAT_ENGSUP, "Flamethrower tank", 4, "engi-other"),
@@ -258,6 +264,9 @@ GLOBAL_LIST_INIT(loadout_linked_vendor, list(
 		/obj/machinery/vending/tool/nopower/valhalla,
 	),
 	SQUAD_CORPSMAN = list(
+		/obj/machinery/vending/medical/shipside,
+	),
+	SYNTHETIC = list(
 		/obj/machinery/vending/medical/shipside,
 	),
 	VENDOR_FACTION_CRASH = list(

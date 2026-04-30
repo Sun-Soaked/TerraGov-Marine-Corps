@@ -30,7 +30,7 @@
 	upgrade_threshold = TIER_THREE_THRESHOLD
 	maximum_active_caste = 1
 	evolve_min_xenos = 12
-	death_evolution_delay = 7 MINUTES
+	death_evolution_delay = 15 MINUTES
 
 	// *** Flags *** //
 	caste_flags = CASTE_IS_INTELLIGENT|CASTE_STAGGER_RESISTANT|CASTE_LEADER_TYPE|CASTE_INSTANT_EVOLUTION|CASTE_HAS_WOUND_MASK|CASTE_MUTATIONS_ALLOWED
@@ -60,7 +60,6 @@
 		/datum/action/ability/xeno_action/petrify,
 		/datum/action/ability/activable/xeno/off_guard,
 		/datum/action/ability/activable/xeno/shattering_roar,
-		/datum/action/ability/xeno_action/psychic_summon,
 		/datum/action/ability/xeno_action/pheromones,
 		/datum/action/ability/xeno_action/pheromones/emit_recovery,
 		/datum/action/ability/xeno_action/pheromones/emit_warding,

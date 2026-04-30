@@ -462,9 +462,8 @@ GLOBAL_LIST_EMPTY(alive_hugger_list)
 	if((status_flags & (XENO_HOST|GODMODE)) || F.stat == DEAD)
 		return FALSE
 
-	if(!provoked)
-		if(species?.species_flags & (IS_SYNTHETIC|ROBOTIC_LIMBS))
-			return FALSE
+	if(species?.species_flags & SPECIES_NO_HUG)
+		return FALSE
 
 	if(on_fire)
 		return FALSE
@@ -865,6 +864,9 @@ GLOBAL_LIST_EMPTY(alive_hugger_list)
 	if(!combat_hugger_check_target(M))
 		return FALSE
 	return TRUE
+
+/obj/item/clothing/mask/facehugger/combat/harmless/attack_self(mob/user)
+	return
 
 #undef FACEHUGGER_DEATH
 #undef IMPREGNATION_TIME

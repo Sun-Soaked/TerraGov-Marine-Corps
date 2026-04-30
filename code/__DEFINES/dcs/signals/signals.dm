@@ -34,6 +34,8 @@
 
 #define COMSIG_GLOB_SHIP_SELF_DESTRUCT_ACTIVATED "!ship_self_destruct_activated"
 
+#define COMSIG_GLOB_SILOLESS_COLLAPSE "!siloless_collapse"
+
 /// from /obj/machinery/setAnchored(): (machine, anchoredstate)
 #define COMSIG_GLOB_MACHINERY_ANCHORED_CHANGE "!machinery_anchored_change"
 /// called after a successful var edit somewhere in the world: (list/args)
@@ -143,6 +145,9 @@
 ///Enables the teleporter array
 #define COMSIG_GLOB_TELEPORTER_ARRAY_ENABLED "!teleporter_array_enabled"
 
+///Sent when a respawn wave triggers
+#define COMSIG_GLOB_HVH_RESPAWN_WAVE "!hvh_respawn_wave"
+
 ///from /atom/notify_ai_hazard()
 #define COMSIG_GLOB_AI_HAZARD_NOTIFIED "!ai_hazard_notified"
 
@@ -159,7 +164,10 @@
 ///from /datum/action/ability/activable/build_designator/indicate_target()
 #define COMSIG_GLOB_DESIGNATED_TARGET_SET "!designated_target_set"
 
-#define COMSIG_GLOB_ZOMBIE_TUNNEL_DESTROYED "!ZOMBIE_TUNNEL_DESTROYED"
+/// From [/obj/effect/ai_node/spawner/zombie/Destroy()]
+#define COMSIG_GLOB_ZOMBIE_TUNNEL_DESTROYED "!zombie_tunnel_destroyed"
+/// From [/obj/machinery/computer/code_generator/nuke/complete_segment()]: (/obj/machinery/computer/code_generator/nuke/generating_computer)
+#define COMSIG_GLOB_DISK_SEGMENT_COMPLETED "!disk_segment_completed"
 
 //////////////////////////////////////////////////////////////////
 // /datum/component signals
@@ -424,6 +432,12 @@
 ///Movable deployed via a patrol point
 #define COMSIG_MOVABLE_PATROL_DEPLOYED "movable_patrol_deployed"
 
+///from /atom/can_climb()
+#define COMSIG_ATOM_CHECK_CLIMBABLE "atom_check_climbable"
+	#define COMPONENT_MOVABLE_CAN_CLIMB (1<<0)
+///from /atom/try_climb()
+#define COMSIG_ATOM_TRY_CLIMBABLE "atom_try_climbable"
+
 // /turf signals
 #define COMSIG_TURF_CHANGE "turf_change"						//from base of turf/ChangeTurf(): (path, list/new_baseturfs, flags, list/transferring_comps)
 #define COMSIG_TURF_WEED_REMOVED "turf_weed_removed"
@@ -587,6 +601,8 @@
 
 #define COMSIG_ARMORED_FIRE "armored_fire"
 #define COMSIG_ARMORED_STOP_FIRE "armored_stop_fire"
+
+#define COMSIG_ARMORED_DO_EXTRACT "armored_do_extract"
 
 // /obj/item/clothing signals
 #define COMSIG_SHOES_STEP_ACTION "shoes_step_action"			//from base of obj/item/clothing/shoes/proc/step_action(): ()
@@ -807,6 +823,8 @@
 #define COMSIG_XENOABILITY_PSYCHIC_TRACE "xenoability_psychic_trace"
 
 #define COMSIG_XENOMORPH_PLASMA_REGEN "xenomorph_plasma_regen"
+#define COMSIG_XENOMORPH_PRE_HEALTH_REGEN_SCALING "xenomorph_pre_health_regen_scaling"
+#define COMSIG_XENOMORPH_POST_HEALTH_REGEN_SCALING "xenomorph_post_health_regen_scaling"
 #define COMSIG_XENOMORPH_HEALTH_REGEN "xenomorph_health_regen"
 #define COMSIG_XENOMORPH_SUNDER_REGEN "xenomorph_sunder_regen"
 #define COMSIG_XENOMORPH_RESIN_JELLY_APPLIED "xenomorph_resin_jelly_applied"
@@ -918,6 +936,9 @@
 
 ///from /datum/action/ability/activable/build_designator/call_interaction()
 #define COMSIG_MOB_INTERACTION_DESIGNATED "mob_interaction_designated"
+
+///From /atom/add_slaved_npc()
+#define COMSIG_COMPONENT_ADD_NEW_SLAVE_NPC "component_add_new_slave_npc"
 
 // /datum/song signals
 

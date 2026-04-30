@@ -8,7 +8,7 @@
 	name = "Devour"
 	action_icon_state = "abduct"
 	action_icon = 'icons/Xeno/actions/gorger.dmi'
-	desc = "Devour your victim to be able to carry it faster."
+	desc = "Devour your victim to be able to carry it around."
 	use_state_flags = ABILITY_USE_STAGGERED|ABILITY_USE_FORTIFIED|ABILITY_USE_CRESTED //can't use while staggered, defender fortified or crest down
 	ability_cost = 0
 	target_flags = ABILITY_MOB_TARGET
@@ -405,7 +405,7 @@
 	if(!attached_armor)
 		attached_armor = getArmor(armor_amount, armor_amount, armor_amount, armor_amount, armor_amount, armor_amount, armor_amount, armor_amount)
 		xeno_owner.soft_armor = xeno_owner.soft_armor.attachArmor(attached_armor)
-	xeno_owner.move_resist = movement_resistance
+	xeno_owner.set_move_resist(movement_resistance)
 	target.balloon_alert(xeno_owner, "link successful")
 	xeno_owner.balloon_alert(target, "linked to [xeno_owner]")
 	if(required_rest)
@@ -443,7 +443,7 @@
 	if(attached_armor)
 		xeno_owner.soft_armor = xeno_owner.soft_armor.detachArmor(attached_armor)
 		attached_armor = null
-	xeno_owner.move_resist = initial(xeno_owner.move_resist)
+	xeno_owner.set_move_resist(initial(xeno_owner.move_resist))
 	if(required_rest)
 		UnregisterSignal(xeno_owner, COMSIG_XENOMORPH_UNREST)
 	var/datum/action/ability/activable/xeno/drain/drain_ability = xeno_owner.actions_by_path[/datum/action/ability/activable/xeno/drain]
